@@ -1,0 +1,7 @@
+[package]
+name = "metalberto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+metalberto_derived = { path = "../metalberto_derived" }
