@@ -6,6 +6,7 @@ use std::str;
 //  Value stuff
 //
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum Value {
     Array { value: Vec<Value> },
     Boolean { value: bool },
@@ -44,12 +45,14 @@ impl fmt::Display for Error {
 //
 //  Parser stuff
 //
+#[allow(dead_code)]
 struct Parser<'a> {
     line: usize,
     caret: usize,
     document: &'a [u8],
 }
 
+#[allow(dead_code)]
 impl Parser<'_> {
     // constructor
     fn new<'a>(document: &'a String) -> Parser<'a> {
@@ -240,6 +243,7 @@ impl Parser<'_> {
 //
 //  Public interface
 //
+#[allow(dead_code)]
 pub fn parse_string<'a>(document: &'a String) -> Result<Value, Error> {
     let mut parser = Parser::new(document);
     parser.parse()
