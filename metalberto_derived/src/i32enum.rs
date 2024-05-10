@@ -1,4 +1,4 @@
-use proc_macro::{TokenStream};
+use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Expr, Lit, Variant};
 use std::result::Result;

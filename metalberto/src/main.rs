@@ -2,11 +2,9 @@ mod common;
 use common::traits::I32Enum;
 
 mod http;
-use http::enums::HttpResponseStatusCode;
+use http::Uri;
 
 use metalberto_derived::I32Enum;
-
-
 
 #[derive(I32Enum, Debug)]
 enum TestEnum {
@@ -16,10 +14,9 @@ enum TestEnum {
 }
 
 fn main() {
-    println!("TestEnum::One: {}", TestEnum::One.into_i32());
-    println!("TestEnum::Two: {}", TestEnum::Two.into_i32());
-    println!("TestEnum::Three: {}", TestEnum::Three.into_i32());
-    println!("1: {:?}", TestEnum::from_i32(2).unwrap());
-
-    println!("404: {:?}", HttpResponseStatusCode::from_i32(404).unwrap());
+    let literal = "https://john:doe@my-site.com:1234/hello?source=li&device=mobile#test123";
+    let uri = Uri::from(literal).unwrap();
+    println!("Uri parsing: '{}'", literal);
+    uri.debug_print();
+    println!("Scheme default port: {}", uri.scheme_default_port().unwrap());
 }

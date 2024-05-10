@@ -1,3 +1,3 @@
-pub mod any_case;
+pub mod anycase;
 pub mod json;
 pub mod traits;

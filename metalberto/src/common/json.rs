@@ -28,9 +28,11 @@ pub enum ErrorType {
     ExpectedDictColonAfterKey { key: String },
     ExpectedDictCloseOrComma,
     UnexpectedEndOfFile,
-    UnknownKeyword { keyword: String }
+    UnknownKeyword { keyword: String },
+    InvalidTypeCoercion
 }
 
+#[derive(Debug)]
 pub struct Error {
     pub line: usize,
     pub error: ErrorType,
@@ -50,6 +52,60 @@ struct Parser<'a> {
     line: usize,
     caret: usize,
     document: &'a [u8],
+}
+
+#[allow(dead_code)]
+impl Value {
+
+    pub fn borrow_array(&self) -> Result<&Vec<Value>, ErrorType> {
+        match self {
+            Value::Array { value } => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion)
+        }
+    }
+
+    pub fn borrow_boolean(&self) -> Result<&bool, ErrorType> {
+        match self {
+            Value::Boolean { value } => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion)
+        }
+    }
+
+    pub fn borrow_dict(&self) -> Result<&HashMap<String, Value>, ErrorType> {
+        match self {
+            Value::Dict { value } => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion)
+        }
+    }
+
+    pub fn borrow_float(&self) -> Result<&f64, ErrorType> {
+        match self {
+            Value::Float { value } => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion)
+        }
+    }
+
+    pub fn borrow_integer(&self) -> Result<&i64, ErrorType> {
+        match self {
+            Value::Integer { value } => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion)
+        }
+    }
+
+    pub fn is_null(&self) -> bool {
+        match self {
+            Value::Null => true,
+            _ => false
+        }
+    }
+
+    pub fn borrow_string(&self) -> Result<&String, ErrorType> {
+        match self {
+            Value::String { value } => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion)
+        }
+    }
+
 }
 
 #[allow(dead_code)]
