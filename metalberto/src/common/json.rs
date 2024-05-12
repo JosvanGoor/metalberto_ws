@@ -300,7 +300,7 @@ impl Parser<'_> {
 //  Public interface
 //
 #[allow(dead_code)]
-pub fn parse_string<'a>(document: &'a String) -> Result<Value, Error> {
+pub fn json_from_string<'a>(document: &'a String) -> Result<Value, Error> {
     let mut parser = Parser::new(document);
     parser.parse()
 }

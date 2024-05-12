@@ -8,6 +8,7 @@ pub enum HttpError {
     
 }
 
+#[allow(dead_code)]
 pub enum HttpMethod {
     Get,
     Head,

@@ -1,5 +1,5 @@
 mod common;
-use common::traits::I32Enum;
+use common::I32Enum;
 
 mod http;
 use http::Uri;
@@ -15,8 +15,9 @@ enum TestEnum {
 
 fn main() {
     let literal = "https://john:doe@my-site.com:1234/hello?source=li&device=mobile#test123";
-    let uri = Uri::from(literal).unwrap();
+    let mut uri = Uri::from(literal).unwrap();
     println!("Uri parsing: '{}'", literal);
+    uri.set_host("www.google.nl");
     uri.debug_print();
     println!("Scheme default port: {}", uri.scheme_default_port().unwrap());
 }

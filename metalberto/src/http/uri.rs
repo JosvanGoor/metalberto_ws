@@ -2,20 +2,17 @@ use regex::Regex;
 
 /*
     Uri parsing regex:
-    ^                                       // start of string anchor
-    (([\w\d\+\-.])+:)?                      // parses optional scheme
-
-    (//                                     // open authority (optional)
-        ((([\w\d\+\._~!$&'()*+,;=:]*))@)?   // user info (optional)
-        (([\w\d\+\._~!$&'()*+,;=]|:{2})*)   // host (non optional)
-        (:(\d*))?                           // port (optional)
-    /)?                                     // close authority (optional)
-
-    (/?[\w\d\+\._~!$&'()*+,;=]+)?           // path
-
-    (\?[\w\d\+\._~!$&'()*+,;=]+)?           // query
-
-    (#[\w\d\+\._~!$&'()*+,;=]+)?            // fragment
+    ^                                           // start of string anchor
+        (?:([\w\d\+\-\.]+):)?                   // parses optional scheme
+        (?://
+            (?:([\w\d\+\._~!$&'()*+,;=:]*)@)?       // userinfo
+            ((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)   // host
+            (?::(\d*))?                             // port
+        )?
+        (/?[\w\d\+\._~!$&'()*+,;=]+)?           // path
+        (?:\?([\w\d\+\._~!$&'()*+,;=]+))?       // query
+        (?:#([\w\d\+\._~!$&'()*+,;=]*))?        // fragment
+    $                                           // end of string anchor
 
     scheme: group 1
     userinfo: group 2
@@ -28,23 +25,17 @@ use regex::Regex;
 
     progress so far: (next up: path) (note that path includes optional '/')
     ^(?:([\w\d\+\-\.]+):)?(?://(?:([\w\d\+\._~!$&'()*+,;=:]*)@)?((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)(?::(\d*))?)?(/?[\w\d\+\._~!$&'()*+,;=]+)?(?:\?([\w\d\+\._~!$&'()*+,;=]+))?(?:#([\w\d\+\._~!$&'()*+,;=]*))?$
-*/
 
-/*
-unreserved: ALPHA / DIGIT / - / . / _ / ~
-    [\w\d\+\._~]
+    unreserved: ALPHA / DIGIT / - / . / _ / ~ --> [\w\d\+\._~]
+    gen-delimiters: ":" / "/" / "?" / "#" / "[" / "]" / "@" --> [:/\?\#\[\]@]
+    sub-delimiters: "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "=" --> [!$&'()*+,;=]
 
-gen-delims: ":" / "/" / "?" / "#" / "[" / "]" / "@"
-    [:/\?\#\[\]@]
-
-sub-delims: "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
-    [!$&'()*+,;=]
 */
 
 ///             userinfo                 port
 ///       |---------------|             |---|
-/// abc://username:password@example.com:12345/path/data?key=value&key2=value2#fragid1
-/// |-|   |-------------------------------||--------| |-------------------| |-----|
+/// abc://username:password@example.com:12345/path/data?key=value&key2=value2#frag
+/// |-|   |---------------------------------||--------| |-------------------| |-----|
 ///  |                  |                       |               |              |
 /// scheme          authority                 path            query         fragment
 
@@ -147,6 +138,25 @@ impl Uri {
         todo!();
     }
 
+    // Setters & Getters
+    pub fn scheme(&self) -> &String { &self.scheme }
+    pub fn userinfo(&self) -> &String { &self.userinfo }
+    pub fn host(&self) -> &String { &self.host }
+    pub fn port(&self) -> u16 { self.port }
+    pub fn path(&self) -> &String { &self.path }
+    pub fn query(&self) -> &String { &self.query }
+    pub fn fragment(&self) -> &String { &self.fragment }
+    
+    pub fn set_scheme(&mut self, scheme: &str) { self.scheme = scheme.to_string(); }
+    pub fn set_userinfo(&mut self, userinfo: &str) { self.userinfo = userinfo.to_string(); }
+    pub fn set_host(&mut self, host: &str) { self.host = host.to_string() }
+    pub fn set_port(&mut self, port: u16) { self.port = port; }
+    pub fn set_path(&mut self, path: &str) { self.path = path.to_string(); }
+    pub fn set_query(&mut self, query: &str) { self.query = query.to_string(); }
+    pub fn set_fragment(&mut self, fragment: &str) { self.fragment = fragment.to_string(); }
+
+
+    // debugging
     pub fn debug_print(&self) {
         println!("Scheme: {}", self.scheme);
         println!("Userinfo: {}", self.userinfo);

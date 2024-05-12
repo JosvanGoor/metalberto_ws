@@ -1,5 +1,5 @@
 use std::HashMap;
-use crate::common::anycase::AnyCase;
+use crate::common::AnyCase;
 
 pub type HttpRequestFields = HashMap<AnyCase, String>;
 
