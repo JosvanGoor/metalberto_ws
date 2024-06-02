@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-metalberto_derived = { path = "../metalberto_derived" }
-regex = "1.10.4"
+jb = { path = "../jb" }
+jb_derived = { path = "../jb_derived" }

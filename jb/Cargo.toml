@@ -1,0 +1,8 @@
+[package]
+name = "jb"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+jb_derived = { path = "../jb_derived" }
+regex = "1.10.4"

@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::common::traits::I32Enum;
-use metalberto_derived::I32Enum;
+use jb_derived::I32Enum;
 
 #[derive(Debug)]
 pub enum HttpError {

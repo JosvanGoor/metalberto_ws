@@ -1,10 +1,6 @@
-mod common;
-use common::I32Enum;
-
-mod http;
-use http::Uri;
-
-use metalberto_derived::I32Enum;
+use jb::common::I32Enum;
+use jb::http::Uri;
+use jb_derived::I32Enum;
 
 #[derive(I32Enum, Debug)]
 enum TestEnum {
