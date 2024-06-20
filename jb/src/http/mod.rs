@@ -1,5 +1,5 @@
-pub mod common;
+mod common;
 pub use common::HttpResponseStatusCode;
 
-pub mod uri;
+mod uri;
 pub use uri::Uri;
