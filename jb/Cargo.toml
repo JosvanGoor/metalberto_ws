@@ -5,4 +5,7 @@ edition = "2021"
 
 [dependencies]
 jb_derived = { path = "../jb_derived" }
+jb_platform = { path = "../jb_platform" }
 regex = "1.10.4"
+openssl-sys = "0.9"
+openssl = "0.10"
