@@ -1,0 +1,1 @@
+wsl (debian) requires: cmake pkg-config libssl-dev
