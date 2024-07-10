@@ -1,12 +1,7 @@
-use jb::common::I32Enum;
-
-#[derive(I32Enum, Debug)]
-enum TestEnum {
-    One = 1,
-    Two = 2,
-    Three = 3
-}
+use jb::SocketAddress;
 
 fn main() {
-    
+    let mut addr = SocketAddress::new();    
+    addr.set_host("farts").unwrap();
+    println!("hostname: {}", addr.hostname());
 }

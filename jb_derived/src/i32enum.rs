@@ -4,7 +4,8 @@ use syn::{Data, DeriveInput, Expr, Lit, Variant};
 use std::result::Result;
 
 #[derive(Debug)]
-enum I32EnumError {
+pub enum I32EnumError {
+    StructNotSupported,
     LiteralMissing,
     LiteralTypeError,
     LiteralParseError
@@ -31,12 +32,14 @@ fn parse_i32_literal(variant: &Variant) -> I32EnumResult {
     Ok(value)
 }
 
-pub fn i32_enum_impl(input: TokenStream) -> TokenStream {
+pub fn i32_enum_impl(input: TokenStream) -> Result<TokenStream, I32EnumError> {
     let input: DeriveInput = syn::parse(input).unwrap();
 
     let enumerations = match input.data {
         Data::Enum(d) => d,
-        _ => panic!("Only supports enums")
+        _ =>  {
+            return Err(I32EnumError::StructNotSupported);
+        }
     };
 
     let enum_name = &input.ident;
@@ -53,7 +56,7 @@ pub fn i32_enum_impl(input: TokenStream) -> TokenStream {
         from_mapping.push(quote!( #num => Some(#enum_name::#id), ));
     }
 
-    quote!{
+    Ok(quote!{
         impl I32Enum for #enum_name {
             
             fn into_i32(&self) -> i32 {
@@ -69,5 +72,5 @@ pub fn i32_enum_impl(input: TokenStream) -> TokenStream {
                 }
             }
         }
-    }.into()
+    }.into())
 }

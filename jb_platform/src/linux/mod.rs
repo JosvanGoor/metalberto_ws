@@ -1,3 +1,8 @@
 
-pub(crate) mod epoll;
-pub(crate) use epoll::*;
+pub(crate) mod ffi;
+
+mod epoll;
+pub use epoll::Epoll;
+
+mod socketaddress;
+pub use socketaddress::SocketAddress;
