@@ -25,7 +25,7 @@ pub(crate) const SOCK_DGRAM: i32 = 2;
 #[repr(C)]
 pub(crate) struct SockAddr {
     pub sa_family: u16,
-    pub sa_data: *const i8
+    pub sa_data: [u8; 14]
 }
 
 impl Default for SockAddr {

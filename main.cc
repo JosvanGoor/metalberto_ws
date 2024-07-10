@@ -1,10 +1,9 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-
-sa_family_t t;
-socklen_t t2;
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 
 int main() {
-    addrinfo info{};
+    addrinfo info;
+    WSADATA data;
+
+    inet_ntop();
 }
