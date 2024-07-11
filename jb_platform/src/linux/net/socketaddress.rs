@@ -1,10 +1,10 @@
 use std::ffi::{c_void, CStr, CString};
 use std::io::{Error, ErrorKind};
-use super::ffi::net::{
-    freeaddrinfo, gai_strerror, getaddrinfo, inet_ntop,
-    AddrInfo, SockAddrIn, SockAddrIn6,
-    AF_INET, AF_INET6, AF_UNSPEC, INADDR_ANY, INET6_ADDRSTRLEN
-};
+
+use crate::constants::{AF_INET, AF_INET6, AF_UNSPEC, INADDR_ANY, INET6_ADDRSTRLEN};
+use crate::functions::{freeaddrinfo, gai_strerror, getaddrinfo, inet_ntop};
+use crate::structs::{AddrInfo, SockAddrIn, SockAddrIn6};
+
 
 #[derive(Debug)]
 pub enum SocketAddress {

@@ -1,3 +1,5 @@
-#![cfg(target_os = "windows")]
 
-pub(crate) mod ffi;
+pub mod native;
+pub use native::*;
+
+pub mod net;

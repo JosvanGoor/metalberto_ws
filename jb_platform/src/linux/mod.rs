@@ -1,9 +1,5 @@
-#![cfg(target_os = "linux")]
 
-pub(crate) mod ffi;
+pub mod native;
+pub use native::*;
 
-mod epoll;
-pub use epoll::Epoll;
-
-mod socketaddress;
-pub use socketaddress::SocketAddress;
+pub mod net;
