@@ -2,7 +2,8 @@ use std::ffi::{c_void, CStr, CString};
 use std::io::{Error, ErrorKind};
 
 use crate::constants::{AF_INET, AF_INET6, AF_UNSPEC, INADDR_ANY, INET6_ADDRSTRLEN};
-use crate::functions::{freeaddrinfo, gai_strerror, getaddrinfo, inet_ntop};
+use crate::functions::{freeaddrinfo, getaddrinfo, inet_ntop};
+use crate::helpers::WinSock;
 use crate::structs::{AddrInfo, SockAddrIn, SockAddrIn6};
 
 
@@ -18,15 +19,29 @@ impl Default for SocketAddress {
     }
 }
 
+impl Drop for SocketAddress {
+    fn drop(&mut self) {
+        WinSock::cleanup();
+    }
+}
+
 impl SocketAddress {
 
     pub fn new() -> Self {
+        WinSock::startup();
         SocketAddress::Ipv4(SockAddrIn::default())
     }
 
     pub fn from(host: &str, port: u16) -> std::io::Result<Self> {
         let mut addr = Self::new();
         addr.set_host(host)?;
+        addr.set_port(port);
+        Ok(addr)
+    }
+
+    pub fn ipv4_from(host: &str, port: u16) -> std::io::Result<Self> {
+        let mut addr = Self::new();
+        addr.set_ipv4_host(host)?;
         addr.set_port(port);
         Ok(addr)
     }
@@ -68,16 +83,24 @@ impl SocketAddress {
         }
     }
 
+    pub fn set_ipv4_host(&mut self, hostname: &str) -> std::io::Result<()> {
+        self.set_host_ex(hostname, AF_INET as i32)
+    }
+
     pub fn set_host(&mut self, hostname: &str) -> std::io::Result<()> {
+        self.set_host_ex(hostname, AF_UNSPEC as i32)
+    }
+
+    fn set_host_ex(&mut self, hostname: &str, family: i32) -> std::io::Result<()> {
         let mut hints = AddrInfo::default();
-        hints.ai_family = AF_UNSPEC as i32;
+        hints.ai_family = family;
         
         let hostname: CString = CString::new(hostname)?;
         let mut results: *mut AddrInfo = std::ptr::null_mut();
         let result = unsafe { getaddrinfo(hostname.as_ptr(), std::ptr::null(), &hints, &mut results) };
         if result != 0 {
             unsafe { freeaddrinfo(results); }
-            let message = String::from(unsafe { CStr::from_ptr(gai_strerror(result)) }.to_str().unwrap());
+            let message = String::from("impl FormatMessage needed");
             return Err(Error::other(message));
         }
 
@@ -110,7 +133,7 @@ impl SocketAddress {
             SocketAddress::Ipv6(ipv6) => ipv6.sin6_addr.as_ptr() as *const c_void,
         };
 
-        let result = unsafe { inet_ntop(self.family() as i32, addr_ptr, buffer.as_mut_ptr(), buffer.len() as u32) };
+        let result = unsafe { inet_ntop(self.family() as i32, addr_ptr, buffer.as_mut_ptr(), buffer.len()) };
         if result == std::ptr::null::<u8>() {
             return String::from("Failed to find hostname");
         }

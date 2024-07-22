@@ -5,5 +5,7 @@ int main() {
     addrinfo info;
     WSADATA data;
 
-    inet_ntop();
+    INADDR_ANY;
+
+    INET6_ADDRSTRLEN;
 }

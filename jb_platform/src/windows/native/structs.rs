@@ -33,7 +33,7 @@ pub struct SockAddrIn {
 #[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct SockAddrIn6 {
-    pub sin6_family: i16,
+    pub sin6_family: u16,
     pub sin6_port: u16,
     pub sin6_flowinfo: u32,
     pub sin6_addr: [u8; 16],
