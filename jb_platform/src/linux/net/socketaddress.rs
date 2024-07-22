@@ -31,6 +31,13 @@ impl SocketAddress {
         Ok(addr)
     }
 
+    pub fn ipv4_from(host: &str, port: u16) -> std::io::Result<Self> {
+        let mut addr = Self::new();
+        addr.set_ipv4_host(host)?;
+        addr.set_port(port);
+        Ok(addr)
+    }
+
     pub fn ipv4_any(port: u16) -> Self {
         Self::Ipv4(SockAddrIn {
             sin_family: AF_INET as u16,
@@ -68,9 +75,17 @@ impl SocketAddress {
         }
     }
 
+    pub fn set_ipv4_host(&mut self, hostname: &str) -> std::io::Result<()> {
+        self.set_host_ex(hostname, AF_INET as i32)
+    }
+
     pub fn set_host(&mut self, hostname: &str) -> std::io::Result<()> {
+        self.set_host_ex(hostname, AF_UNSPEC as i32)
+    }
+
+    fn set_host_ex(&mut self, hostname: &str, family: i32) -> std::io::Result<()> {
         let mut hints = AddrInfo::default();
-        hints.ai_family = AF_UNSPEC as i32;
+        hints.ai_family = family;
         
         let hostname: CString = CString::new(hostname)?;
         let mut results: *mut AddrInfo = std::ptr::null_mut();
@@ -82,7 +97,7 @@ impl SocketAddress {
         }
 
         unsafe {
-                match (*results).ai_family {
+            match (*results).ai_family {
                 AF_INET => *self = SocketAddress::Ipv4(*((*results).ai_addr as *mut SockAddrIn)),
                 AF_INET6 => *self = SocketAddress::Ipv6(*((*results).ai_addr as *const SockAddrIn6)),
                 _ => {
@@ -90,9 +105,10 @@ impl SocketAddress {
                     return Err(Error::from(ErrorKind::AddrNotAvailable));
                 }
             }
+
+            freeaddrinfo(results);
         }
 
-        unsafe { freeaddrinfo(results); }
         Ok(())
     }
 
