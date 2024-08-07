@@ -2,6 +2,7 @@
 
 pub mod common;
 pub mod http;
+pub mod net;
 
 // forward jb_platform
 pub use jb_platform::*;

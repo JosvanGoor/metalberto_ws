@@ -8,7 +8,10 @@ pub enum HttpError {
     
 }
 
+pub type HttpResult<T> = Result<T, HttpError>;
+
 #[allow(dead_code)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum HttpMethod {
     Get,
     Head,
@@ -22,7 +25,6 @@ pub enum HttpMethod {
 }
 
 impl fmt::Display for HttpMethod {
-
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match self {
             HttpMethod::Get => write!(f, "GET"),
@@ -36,7 +38,22 @@ impl fmt::Display for HttpMethod {
             HttpMethod::Patch => write!(f, "PATCH"),
         }
     }
+}
 
+impl Into<&'static str> for HttpMethod {
+    fn into(self) -> &'static str {
+        match self {
+            HttpMethod::Get => "GET",
+            HttpMethod::Head => "HEAD",
+            HttpMethod::Post => "POST",
+            HttpMethod::Put => "PUT",
+            HttpMethod::Delete => "DELETE",
+            HttpMethod::Connect => "CONNECT",
+            HttpMethod::Options => "OPTIONS",
+            HttpMethod::Trace => "TRACE",
+            HttpMethod::Patch => "PATCH",
+        }
+    }
 }
 
 #[derive(I32Enum, Debug)]
