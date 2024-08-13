@@ -1,6 +1,7 @@
-use jb::net::SocketAddress;
+use jb::{hash::Sha1, net::SocketAddress};
 
 fn main() {
-    let addr: SocketAddress = SocketAddress::ipv4_from("www.google.nl", 443).unwrap();
-    println!("{}", addr.hostname());
+    let mut sha1 = Sha1::new();
+    sha1.update("The quick brown fox jumped over the lazy fox".as_bytes());
+    println!("empty hash: {}", sha1.finalize_as_str());
 }
