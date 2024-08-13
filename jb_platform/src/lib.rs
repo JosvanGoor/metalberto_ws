@@ -2,9 +2,11 @@
 #![allow(dead_code)]
 
 #[cfg(target_os = "linux")]
-mod linux;
+pub(crate) mod linux;
 #[cfg(target_os = "linux")]
-pub use linux::*;
+pub(crate) use linux::native::*;
+#[cfg(target_os = "linux")]
+pub use linux::net;
 
 #[cfg(target_os = "windows")]
 mod windows;

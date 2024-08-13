@@ -1,5 +1,4 @@
 
-pub mod native;
-pub use native::*;
+pub(crate) mod native;
 
 pub mod net;
