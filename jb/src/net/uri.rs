@@ -125,6 +125,8 @@ impl Uri {
             "https"     => Some(443),
             "irc"       => Some(194),
             "sftp"      => Some(22),
+            "smtp"      => Some(465),
+            "ssmtp"     => Some(587),
             "ssh"       => Some(22),
             "telnet"    => Some(23),
             "rsync"     => Some(873),

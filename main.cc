@@ -1,11 +1,5 @@
-#include <WinSock2.h>
-#include <WS2tcpip.h>
+#include <sys/socket.h>
 
 int main() {
-    addrinfo info;
-    WSADATA data;
-
-    INADDR_ANY;
-
-    INET6_ADDRSTRLEN;
+    socklen_t len;
 }

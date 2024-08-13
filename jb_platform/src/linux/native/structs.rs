@@ -19,6 +19,14 @@ pub struct EpollEvent {
     pub epoll_tag: usize
 }
 
+#[derive(Debug)]
+#[repr(C)]
+pub struct PollFd {
+    fd: i32,
+    events: i16,
+    events_out: i16
+}
+
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 pub struct SockAddr {
