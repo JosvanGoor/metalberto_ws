@@ -1,5 +1,3 @@
-use std::num::Wrapping;
-
 #[derive(Clone, Debug)]
 pub struct Sha1 {
     buffer: Vec<u8>, // this could be a vecdeque

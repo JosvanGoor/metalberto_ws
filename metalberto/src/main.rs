@@ -1,7 +1,7 @@
-use jb::{hash::Sha1, net::SocketAddress};
+use jb::{calculator::{CalculatorParser, Tokenizer}, hash::Sha1, net::SocketAddress};
 
 fn main() {
-    let mut sha1 = Sha1::new();
-    sha1.update("The quick brown fox jumped over the lazy fox".as_bytes());
-    println!("empty hash: {}", sha1.finalize_as_str());
+    let expr = format!("sqrt(-1)");
+    let mut parser = CalculatorParser::new(&expr).unwrap();
+    println!("result: {}", parser.parse().unwrap().evaluate().unwrap());
 }
