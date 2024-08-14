@@ -1,5 +1,7 @@
 use std::str::Utf8Error;
 
+use super::TokenType;
+
 #[derive(Clone, Copy, Debug)]
 pub enum CalculatorErrorType {
     ExpectedNumber,
@@ -9,10 +11,11 @@ pub enum CalculatorErrorType {
     InvalidBinaryOp,
     ArityError(usize, usize), // params present, expected
     InvalidCallOp,
-    ExpectedPrimary,
+    ExpectedPrimary(TokenType), // instead
     UnclosedParenthesis,
     NoParenthesisAfterIdentifier,
-    ExpectedCommaOrClosingParenthesis
+    ExpectedCommaOrClosingParenthesis(TokenType), // instead
+    TokenWithoutDisplay,
 }
 
 #[derive(Copy, Clone, Debug)]

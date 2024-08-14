@@ -12,8 +12,9 @@ impl<'src> Tokenizer<'src> {
     pub fn tokenize(&mut self) -> CalculatorResult<Vec<Token>> {
         let mut tokens = Vec::new();
 
+        self.skip_whitespace();
+
         while !self.eof() {
-            self.skip_whitespace();
 
             match self.peek() {
                 b'+' => { tokens.push(self.simple_token(TokenType::Plus)); },
@@ -29,6 +30,8 @@ impl<'src> Tokenizer<'src> {
 
                 _ => return Err(CalculatorError::new(self.caret, CalculatorErrorType::UnexpectedCharacter(self.peek())))
             }
+
+            self.skip_whitespace();
         }
 
         tokens.push(self.simple_token(TokenType::EndOfLine));

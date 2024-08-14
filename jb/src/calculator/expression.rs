@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use crate::calculator::CalculatorErrorType;
 
 use super::{CalculatorError, CalculatorResult, Token, TokenType};
@@ -8,6 +10,7 @@ use super::{CalculatorError, CalculatorResult, Token, TokenType};
 pub type Number = f64;
 pub trait Expression {
     fn evaluate(&self) -> CalculatorResult<Number>;
+    fn describe(&self) -> CalculatorResult<String>;
 }
 pub type BoxedExpression = Box<dyn Expression>;
 
@@ -38,6 +41,11 @@ impl Expression for BinaryExpression {
             _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidBinaryOp))
         }
     }
+
+    fn describe(&self) -> CalculatorResult<String> {
+        Ok(format!("({} {} {})", self.op.describe()?, self.lhs.describe()?, self.rhs.describe()?))
+    }
+
 }
 
 /*
@@ -81,6 +89,25 @@ impl Expression for CallExpression {
             _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidCallOp))
         }
     }
+
+    fn describe(&self) -> CalculatorResult<String> {
+        match self.op {
+            TokenType::KwPow | TokenType::KwLog => {
+                Ok(format!("({} {}, {})", self.op.describe()?, self.arguments[0].describe()?, self.arguments[1].describe()?))
+            },
+            
+            TokenType::KwSqrt |
+            TokenType::KwSin  |
+            TokenType::KwCos  |
+            TokenType::KwTan  |
+            TokenType::KwLn   |
+            TokenType::KwDeg  |
+            TokenType::KwRad  |
+            TokenType::KwExp  => Ok(format!("({} {})", self.op.describe()?, self.arguments[0].describe()?)),
+            
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidCallOp))
+        }
+    }
 }
 
 /*
@@ -100,6 +127,10 @@ impl NegateExpression {
 impl Expression for NegateExpression {
     fn evaluate(&self) -> CalculatorResult<Number> {
         Ok(-self.expr.evaluate()?)
+    }
+
+    fn describe(&self) -> CalculatorResult<String> {
+        Ok(format!("(neg {})", self.expr.describe()?))
     }
 }
 
@@ -125,5 +156,9 @@ impl ValueExpression {
 impl Expression for ValueExpression {
     fn evaluate(&self) -> CalculatorResult<Number> {
         Ok(self.value)
+    }
+
+    fn describe(&self) -> CalculatorResult<String> {
+        Ok(format!("{}", self.value))
     }
 }

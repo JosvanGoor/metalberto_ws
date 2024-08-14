@@ -54,6 +54,28 @@ impl TokenType {
             _=> TokenType::Identifier
         }
     }
+
+    pub fn describe(&self) -> CalculatorResult<&'static str> {
+        match *self {
+            TokenType::Plus => Ok("+"),
+            TokenType::Minus => Ok("-"),
+            TokenType::Star => Ok("*"),
+            TokenType::Slash => Ok("/"),
+            TokenType::Hat => Ok("^"),
+            TokenType::KwSqrt => Ok("sqrt"),
+            TokenType::KwPow => Ok("pow"),
+            TokenType::KwSin => Ok("sin"),
+            TokenType::KwCos => Ok("cos"),
+            TokenType::KwTan => Ok("tan"),
+            TokenType::KwLog => Ok("log"),
+            TokenType::KwLn => Ok("ln"),
+            TokenType::KwDeg => Ok("deg"),
+            TokenType::KwRad => Ok("rad"),
+            TokenType::KwExp => Ok("exp"),
+
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::TokenWithoutDisplay))
+        }
+    }
 }
 
 #[derive(Clone, Debug)]

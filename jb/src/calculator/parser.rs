@@ -101,8 +101,8 @@ impl CalculatorParser {
 
     fn primary(&mut self) -> CalculatorResult<BoxedExpression> {
         match self.peek().token {
-            TokenType::ConstE => Ok(ValueExpression::new(f64::consts::E)),
-            TokenType::ConstPi => Ok(ValueExpression::new(f64::consts::PI)),
+            TokenType::ConstE => { self.advance();  Ok(ValueExpression::new(f64::consts::E)) },
+            TokenType::ConstPi => { self.advance(); Ok(ValueExpression::new(f64::consts::PI)) },
             TokenType::Number => Ok(ValueExpression::parse(&self.advance().literal.unwrap())),
             
             TokenType::LeftParen => {
@@ -125,7 +125,7 @@ impl CalculatorParser {
             TokenType::KwSqrt |
             TokenType::KwTan => { Ok(self.call()?) }
             
-            _ => Err(CalculatorError::new(0, CalculatorErrorType::ExpectedPrimary))
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::ExpectedPrimary(self.peek().token)))
         }
     }
 
@@ -143,7 +143,7 @@ impl CalculatorParser {
 
         while !self.accept(TokenType::RightParen) {
             if !self.accept(TokenType::Comma) {
-                return Err(CalculatorError::new(0, CalculatorErrorType::ExpectedCommaOrClosingParenthesis));
+                return Err(CalculatorError::new(0, CalculatorErrorType::ExpectedCommaOrClosingParenthesis(self.peek().token)));
             }
             args.push(self.addition()?);
         }
