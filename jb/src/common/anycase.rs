@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, hash::{Hash, Hasher}};
+use std::hash::{Hash, Hasher};
 
 /*
     AnyCase is a string container meant to be useable as a hashmap key that ignores case

@@ -19,7 +19,7 @@ impl HttpRequest {
 
     
 
-    pub fn generate(&self, method: HttpMethod, uri: &Uri, content: Option<HttpContentInfo>) -> HttpResult<Vec<u8>> {
+    pub fn generate(&self, method: HttpMethod, uri: &Uri, _content: Option<HttpContentInfo>) -> HttpResult<Vec<u8>> {
         let mut buffer = Vec::new();
         write_head_line(&mut buffer, method, uri);
 

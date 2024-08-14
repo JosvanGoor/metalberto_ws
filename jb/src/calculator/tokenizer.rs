@@ -1,5 +1,4 @@
 use core::str;
-use std::char;
 use super::{CalculatorError, CalculatorErrorType, CalculatorResult, Token, TokenType};
 
 pub struct Tokenizer<'src> {

@@ -1,8 +1,5 @@
-use std::fmt::format;
-
 use crate::calculator::CalculatorErrorType;
-
-use super::{CalculatorError, CalculatorResult, Token, TokenType};
+use super::{CalculatorError, CalculatorResult, TokenType};
 
 /*
     MARK: Baseline types

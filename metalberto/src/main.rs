@@ -1,4 +1,4 @@
-use jb::{calculator::{CalculatorParser, Tokenizer}, hash::Sha1, net::SocketAddress};
+use jb::calculator::CalculatorParser;
 
 fn main() {
     let expr = format!("2 ^ 4 ^ 2 - 1 + 2 + 3");

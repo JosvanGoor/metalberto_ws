@@ -1,5 +1,3 @@
-use std::str::Utf8Error;
-
 use super::TokenType;
 
 #[derive(Clone, Copy, Debug)]
