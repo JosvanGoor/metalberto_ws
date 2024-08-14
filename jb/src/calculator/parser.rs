@@ -1,5 +1,5 @@
 use core::f64;
-use super::{BinaryExpression, BoxedExpression, CalculatorError, CalculatorErrorType, CalculatorResult, CallExpression, NegateExpression, Token, TokenType, Tokenizer, ValueExpression};
+use super::{BinaryExpression, BoxedExpression, CalculatorError, CalculatorErrorType, CalculatorResult, CallExpression, NegateExpression, Number, Token, TokenType, Tokenizer, ValueExpression};
 
 /*
     Syntax:
@@ -150,4 +150,10 @@ impl CalculatorParser {
 
         Ok(CallExpression::new(keyword, args))
     }
+}
+
+pub fn evaluate_calculation(expr: &str) -> CalculatorResult<Number> {
+    let mut parser = CalculatorParser::new(expr)?;
+    let expr = parser.parse()?;
+    expr.evaluate()
 }

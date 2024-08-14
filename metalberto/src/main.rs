@@ -1,7 +1,7 @@
 use jb::calculator::CalculatorParser;
 
 fn main() {
-    let expr = format!("2 ^ 4 ^ 2 - 1 + 2 + 3");
+    let expr = format!("   @");
     let mut parser = CalculatorParser::new(&expr).unwrap();
     let expression = parser.parse().unwrap();
     

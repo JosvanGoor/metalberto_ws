@@ -4,7 +4,7 @@ use super::TokenType;
 pub enum CalculatorErrorType {
     ExpectedNumber,
     ExpectedMinusOrNumber,
-    UnexpectedCharacter(u8),
+    UnexpectedCharacter(char),
     UtfParseError,
     InvalidBinaryOp,
     ArityError(usize, usize), // params present, expected
@@ -22,12 +22,10 @@ pub struct CalculatorError {
     pub error_type: CalculatorErrorType
 }
 
-pub type CalculatorResult<T> = Result<T, CalculatorError>;
-
 impl CalculatorError {
-
     pub fn new(caret: usize, error_type: CalculatorErrorType) -> Self {
         CalculatorError { caret, error_type }
-    }
-
+    }    
 }
+
+pub type CalculatorResult<T> = Result<T, CalculatorError>;

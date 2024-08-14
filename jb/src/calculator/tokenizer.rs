@@ -27,7 +27,7 @@ impl<'src> Tokenizer<'src> {
                 b'0'..=b'9' => tokens.push(self.number()?),
                 b'a'..=b'z' | b'A'..=b'Z' | b'_' => tokens.push(self.identifier()?),
 
-                _ => return Err(CalculatorError::new(self.caret, CalculatorErrorType::UnexpectedCharacter(self.peek())))
+                _ => return Err(CalculatorError::new(self.caret, CalculatorErrorType::UnexpectedCharacter(self.peek() as char)))
             }
 
             self.skip_whitespace();
