@@ -56,7 +56,7 @@ impl Into<&'static str> for HttpMethod {
     }
 }
 
-#[derive(I32Enum, Debug)]
+#[derive(Copy, Clone, Debug, I32Enum)]
 pub enum HttpResponseStatusCode {
     Uninitialized = 0,
 
@@ -125,4 +125,10 @@ pub enum HttpResponseStatusCode {
     LoopDetected = 508,
     NotExtended = 510,
     NetworkAuthenticationRequired = 511
+}
+
+impl Default for HttpResponseStatusCode {
+    fn default() -> Self {
+        HttpResponseStatusCode::Uninitialized
+    }
 }

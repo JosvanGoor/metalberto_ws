@@ -5,3 +5,4 @@ pub mod common;
 pub mod hash;
 pub mod http;
 pub mod net;
+pub mod random;

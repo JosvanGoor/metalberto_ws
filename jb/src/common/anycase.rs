@@ -19,6 +19,10 @@ impl AnyCase {
     pub fn ref_inner(&self) -> &String {
         &self.0
     }
+
+    pub fn as_slice(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
 }
 
 impl Hash for AnyCase {
@@ -30,6 +34,12 @@ impl Hash for AnyCase {
 impl Into<AnyCase> for String {
     fn into(self) -> AnyCase {
         AnyCase::from_string(self)
+    }
+}
+
+impl Into<AnyCase> for &str {
+    fn into(self) -> AnyCase {
+        AnyCase::from_string(String::from(self))
     }
 }
 

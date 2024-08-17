@@ -1,8 +1,7 @@
 use crate::common::AnyCase;
-use crate::http::{HttpContentInfo, HttpMethod, HttpResult};
+use crate::http::{HttpContent, HttpMethod};
 use crate::net::Uri;
 use std::collections::HashMap;
-use std::ops::Index;
 
 #[derive(Clone, Debug, Default)]
 pub struct HttpRequest {
@@ -13,35 +12,46 @@ impl HttpRequest {
 
     pub fn new() -> Self { Self::default() }
 
-    pub fn set(&mut self, key: AnyCase, value: String) -> Option<String> {
-        self.fields.insert(key, value)
+    pub fn set_field<T: Into<AnyCase>>(&mut self, key: T, value: String) -> Option<String> {
+        self.fields.insert(key.into(), value)
     }
 
-    
+    pub fn get_field<T: Into<AnyCase>>(&mut self, key: T) -> Option<&String> {
+        self.fields.get(&key.into())
+    }
 
-    pub fn generate(&self, method: HttpMethod, uri: &Uri, _content: Option<HttpContentInfo>) -> HttpResult<Vec<u8>> {
+    pub fn generate(&mut self, method: HttpMethod, uri: &Uri, content: Option<&HttpContent>) -> Vec<u8> {
         let mut buffer = Vec::new();
         write_head_line(&mut buffer, method, uri);
 
-        Ok(buffer)
+        if let Some(ref content) = content {
+            self.set_field("Content-Length", content.content_length().to_string());
+            self.set_field("Content-Type", content.content_type().clone());
+        } else {
+            self.fields.remove(&"Content-Length".into());
+            self.fields.remove(&"Content-Type".into());
+        }
+
+        self.fields.entry("Connection".into()).or_insert_with(|| "Close".into() );
+        self.fields.entry("Accept".into()).or_insert_with(|| "*/*".into());
+        self.fields.insert("Host".into(), uri.host().into());
+
+        for (key, val) in self.fields.iter() {
+            buffer.extend_from_slice(key.as_slice());
+            buffer.extend_from_slice(": ".as_bytes());
+            buffer.extend_from_slice(val.as_bytes());
+            buffer.extend_from_slice("\r\n".as_bytes());
+        }
+
+        // extra empty line to end header
+        buffer.extend_from_slice("\r\n".as_bytes());
+        if let Some(ref content) = content {
+            buffer.extend_from_slice(content.as_slice());
+        }
+
+        buffer
     }
 
-}
-
-impl Index<String> for HttpRequest {
-    type Output = String;
-
-    fn index(&self, index: String) -> &Self::Output {
-        &self.fields[&index.into()]
-    }
-}
-
-impl Index<&AnyCase> for HttpRequest {
-    type Output = String;
-
-    fn index(&self, index: &AnyCase) -> &Self::Output {
-        &self.fields[&index]
-    }
 }
 
 // Boilerplate heavy helper functions
@@ -50,7 +60,11 @@ fn write_head_line(buffer: &mut Vec<u8>, method: HttpMethod, uri: &Uri) {
 
     buffer.extend_from_slice(method_str.as_bytes());
     buffer.push(b' ');
-    buffer.extend_from_slice(uri.path().as_bytes());
+    if uri.path().is_empty() {
+        buffer.push(b'/');
+    } else {
+        buffer.extend_from_slice(uri.path().as_bytes());
+    }
 
     if !uri.query().is_empty() {
         buffer.push(b'?');
