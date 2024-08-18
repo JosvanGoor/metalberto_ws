@@ -9,7 +9,7 @@ use regex::Regex;
             ((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)   // host
             (?::(\d*))?                             // port
         )?
-        (/?[\w\d\+\._~!$&'()*+,;=]+)?           // path
+        (/?[\w\d\+\._~!$&'()*+,;=]*)?           // path
         (?:\?([\w\d\+\._~!$&'()*+,;=]+))?       // query
         (?:#([\w\d\+\._~!$&'()*+,;=]*))?        // fragment
     $                                           // end of string anchor
@@ -22,8 +22,6 @@ use regex::Regex;
     query: group 6
     fragment: group 7
 
-
-    progress so far: (next up: path) (note that path includes optional '/')
     ^(?:([\w\d\+\-\.]+):)?(?://(?:([\w\d\+\._~!$&'()*+,;=:]*)@)?((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)(?::(\d*))?)?(/?[\w\d\+\._~!$&'()*+,;=]*)?(?:\?([\w\d\+\._~!$&'()*+,;=]+))?(?:#([\w\d\+\._~!$&'()*+,;=]*))?$
 
     unreserved: ALPHA / DIGIT / - / . / _ / ~ --> [\w\d\+\._~]
@@ -74,11 +72,11 @@ impl Uri {
         }
     }
 
-    pub fn from(str: &str) -> Result<Self, UriParseError> {
+    pub fn from<T: AsRef<str>>(uri_str: T) -> Result<Self, UriParseError> {
         let mut uri = Uri::new();
         let regex = Regex::new(URI_REGEX).expect("Syntax error in uri parsing regex");
         
-        let Some(captures) = regex.captures(str) else {
+        let Some(captures) = regex.captures(uri_str.as_ref()) else {
             return Err(UriParseError::NotAnUri);
         };
 
