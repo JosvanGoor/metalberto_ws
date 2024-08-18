@@ -14,7 +14,7 @@ fn main() {
     println!("evaluate: {}", expression.evaluate().unwrap());
 
     let mut request = HttpRequest::new();
-    let content = HttpContent::new("plain/txt".into(), "123".into());
+    let content = HttpContent::from_content("plain/txt".into(), "123".into());
 
     let uri = Uri::from("http://127.0.0.1/test?arg=12").unwrap();
     let raw = request.generate(HttpMethod::Post, &uri, Some(&content));

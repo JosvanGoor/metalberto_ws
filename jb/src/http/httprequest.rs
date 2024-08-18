@@ -37,10 +37,7 @@ impl HttpRequest {
         self.fields.insert("Host".into(), uri.host().into());
 
         for (key, val) in self.fields.iter() {
-            buffer.extend_from_slice(key.as_slice());
-            buffer.extend_from_slice(": ".as_bytes());
-            buffer.extend_from_slice(val.as_bytes());
-            buffer.extend_from_slice("\r\n".as_bytes());
+            buffer.extend_from_slice(format!("{}: {}\r\n", key, val).as_bytes());
         }
 
         // extra empty line to end header

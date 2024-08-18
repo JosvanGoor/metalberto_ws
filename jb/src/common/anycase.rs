@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 
 /*
@@ -25,6 +26,14 @@ impl AnyCase {
     }
 }
 
+impl Display for AnyCase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Eq for AnyCase {}
+
 impl Hash for AnyCase {
     fn hash<H>(&self, h: &mut H) where H: Hasher { 
         self.0.to_ascii_lowercase().hash(h)
@@ -48,5 +57,3 @@ impl PartialEq for AnyCase {
         self.0.to_ascii_lowercase() == other.0.to_ascii_lowercase()
     }
 }
-
-impl Eq for AnyCase {}

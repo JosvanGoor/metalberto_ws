@@ -1,11 +1,28 @@
-use std::fmt;
-
 use crate::common::traits::I32Enum;
+use crate::common::BytesToI32Error;
 use jb_derived::I32Enum;
+use std::fmt;
+use std::str::Utf8Error;
 
 #[derive(Debug)]
 pub enum HttpError {
-    
+    ParsingNotDone,
+    InvalidHeadline,
+    Utf8Error(Utf8Error),
+    StatusParseError(BytesToI32Error),
+    StatusUnknown,
+}
+
+impl Into<HttpError> for Utf8Error {
+    fn into(self) -> HttpError {
+        HttpError::Utf8Error(self)
+    }
+}
+
+impl Into<HttpError> for BytesToI32Error {
+    fn into(self) -> HttpError {
+        HttpError::StatusParseError(self)
+    }
 }
 
 pub type HttpResult<T> = Result<T, HttpError>;
