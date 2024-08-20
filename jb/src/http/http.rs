@@ -2,26 +2,32 @@ use crate::common::traits::I32Enum;
 use crate::common::BytesToI32Error;
 use jb_derived::I32Enum;
 use std::fmt;
+use std::num::ParseIntError;
 use std::str::Utf8Error;
 
 #[derive(Debug)]
 pub enum HttpError {
     ParsingNotDone,
-    InvalidHeadline,
+    InvalidHeadLine,
     Utf8Error(Utf8Error),
     StatusParseError(BytesToI32Error),
     StatusUnknown,
-}
-
-impl Into<HttpError> for Utf8Error {
-    fn into(self) -> HttpError {
-        HttpError::Utf8Error(self)
-    }
+    InvalidFieldLine,
+    ExpectedIntInHeader(String, ParseIntError), // field, error
+    InvalidTransferEncoding(String),
+    TooMuchDataInResponse,
+    ChunkSizeError(ParseIntError)
 }
 
 impl Into<HttpError> for BytesToI32Error {
     fn into(self) -> HttpError {
         HttpError::StatusParseError(self)
+    }
+}
+
+impl Into<HttpError> for Utf8Error {
+    fn into(self) -> HttpError {
+        HttpError::Utf8Error(self)
     }
 }
 

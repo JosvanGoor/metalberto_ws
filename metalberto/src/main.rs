@@ -1,28 +1,39 @@
-use core::str;
+use std::net::TcpStream;
+use std::io::prelude::*;
 
-use jb::calculator::CalculatorParser;
-use jb::http::{HttpContent, HttpMethod, HttpRequest};
+use jb::common::bytes_to_string;
+use jb::http::{HttpMethod, HttpParserState, HttpRequest, HttpResponseParser};
 use jb::net::Uri;
-use jb::random::Lcg;
+
+
 
 fn main() {
-    let expr = format!("1 + 2 + 3");
-    let mut parser = CalculatorParser::new(&expr).unwrap();
-    let expression = parser.parse().unwrap();
-    
-    println!("describe: {}", expression.describe().unwrap());
-    println!("evaluate: {}", expression.evaluate().unwrap());
-
+    let uri = Uri::from("http://anglesharp.azurewebsites.net/Chunked").unwrap();
     let mut request = HttpRequest::new();
-    let content = HttpContent::from_content("plain/txt".into(), "123".into());
+    let payload = request.generate(HttpMethod::Get, &uri, None);
 
-    let uri = Uri::from("http://127.0.0.1/test?arg=12#skadeeb").unwrap();
-    let raw = request.generate(HttpMethod::Post, &uri, Some(&content));
-    let generated = String::from(str::from_utf8(raw.as_slice()).unwrap());
-    println!("{}", generated);
+    let mut connection = TcpStream::connect(format!("{}:{}", uri.host(), uri.determine_port().unwrap())).unwrap();
+    connection.write(payload.as_slice()).unwrap();
 
-    let mut lcg = Lcg::default();
-    for _ in 0..10 {
-        println!("{}", lcg.next());
+    let mut buffer = [0u8; 1024];
+    let mut parser = HttpResponseParser::new();
+
+    let response = loop {
+        let read = connection.read(buffer.as_mut_slice()).unwrap();
+        
+        if parser.update(&buffer[0..read]).unwrap() == HttpParserState::ParsingDone {
+            break parser.take_response().unwrap();
+        }
+    };
+
+    println!("Status: {:?}", response.status);
+    println!("Reason: {:?}", response.reason);
+    println!("Version: {:?}\n", response.version);
+    
+    for (k, v) in response.fields.iter() {
+        println!("{}: {}", k, v);
     }
+
+    println!("\ncontent type: {:?}", response.content.content_type());
+    println!("content: {}", bytes_to_string(response.content.as_slice()).unwrap());
 }

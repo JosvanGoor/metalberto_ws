@@ -40,6 +40,21 @@ impl HttpContent {
         self.content.as_slice()
     }
 
+    pub fn extend_from_slice(&mut self, data: &[u8]) {
+        self.content.extend_from_slice(data);
+    }
+    
+    pub fn update_content_type(&mut self, content_type: Option<&String>) {
+        match content_type {
+            Some(content_type) => self.content_type = content_type.clone(),
+            None => (),
+        }
+    }
+
+    pub fn set_content(&mut self, content: Vec<u8>) {
+        self.content = content;
+    }
+
     pub fn write_multipart_data(&mut self, name: Option<String>, filename: Option<String>, content_type: Option<String>, data: Vec<u8>, close_body: bool) {
         self.write_multipart_header(name, filename, content_type);
         self.content.extend_from_slice(data.as_slice());

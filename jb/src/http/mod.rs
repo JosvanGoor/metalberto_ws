@@ -8,7 +8,7 @@ mod httprequest;
 pub use httprequest::*;
 
 mod httpresponse;
-pub use httpresponse::HttpResponse;
+pub use httpresponse::*;
 
 mod httpresponseparser;
-pub use httpresponseparser::HttpResponseParser;
+pub use httpresponseparser::*;

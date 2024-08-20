@@ -6,7 +6,7 @@ use std::str::Utf8Error;
     Naive implementation that searches for the index of a subsequence
 */
 pub fn subsequence_index(offset: usize, buffer: &Vec<u8>, sequence: &[u8]) -> Option<usize> {
-    if offset >= (buffer.len() - sequence.len()) {
+    if sequence.len() > buffer.len() || offset >= (buffer.len() - sequence.len()) {
         return None;
     }
 
