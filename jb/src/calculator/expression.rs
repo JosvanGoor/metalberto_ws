@@ -1,5 +1,5 @@
-use crate::calculator::CalculatorErrorType;
 use super::{CalculatorError, CalculatorResult, TokenType};
+use crate::calculator::CalculatorErrorType;
 
 /*
     MARK: Baseline types
@@ -18,12 +18,16 @@ pub type BoxedExpression = Box<dyn Expression>;
 pub struct BinaryExpression {
     op: TokenType,
     lhs: BoxedExpression,
-    rhs: BoxedExpression
+    rhs: BoxedExpression,
 }
 
 impl BinaryExpression {
     pub fn new(op: TokenType, lhs: BoxedExpression, rhs: BoxedExpression) -> Box<Self> {
-        Box::new(Self { op, lhs, rhs })
+        Box::new(Self {
+            op,
+            lhs,
+            rhs,
+        })
     }
 }
 
@@ -35,14 +39,13 @@ impl Expression for BinaryExpression {
             TokenType::Star => Ok(self.lhs.evaluate()? * self.rhs.evaluate()?),
             TokenType::Slash => Ok(self.lhs.evaluate()? / self.rhs.evaluate()?),
             TokenType::Hat => Ok(self.lhs.evaluate()?.powf(self.rhs.evaluate()?)),
-            _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidBinaryOp))
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidBinaryOp)),
         }
     }
 
     fn describe(&self) -> CalculatorResult<String> {
         Ok(format!("({} {} {})", self.op.describe()?, self.lhs.describe()?, self.rhs.describe()?))
     }
-
 }
 
 /*
@@ -51,12 +54,15 @@ impl Expression for BinaryExpression {
 
 pub struct CallExpression {
     op: TokenType,
-    arguments: Vec<BoxedExpression>
+    arguments: Vec<BoxedExpression>,
 }
 
 impl CallExpression {
     pub fn new(op: TokenType, arguments: Vec<BoxedExpression>) -> Box<Self> {
-        Box::new(Self { op, arguments })
+        Box::new(Self {
+            op,
+            arguments,
+        })
     }
 }
 
@@ -83,7 +89,7 @@ impl Expression for CallExpression {
             TokenType::KwRad => Ok(self.arguments[0].evaluate()?.to_radians()),
             TokenType::KwExp => Ok(self.arguments[0].evaluate()?.exp()),
 
-            _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidCallOp))
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidCallOp)),
         }
     }
 
@@ -91,18 +97,18 @@ impl Expression for CallExpression {
         match self.op {
             TokenType::KwPow | TokenType::KwLog => {
                 Ok(format!("({} {}, {})", self.op.describe()?, self.arguments[0].describe()?, self.arguments[1].describe()?))
-            },
-            
-            TokenType::KwSqrt |
-            TokenType::KwSin  |
-            TokenType::KwCos  |
-            TokenType::KwTan  |
-            TokenType::KwLn   |
-            TokenType::KwDeg  |
-            TokenType::KwRad  |
-            TokenType::KwExp  => Ok(format!("({} {})", self.op.describe()?, self.arguments[0].describe()?)),
-            
-            _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidCallOp))
+            }
+
+            TokenType::KwSqrt
+            | TokenType::KwSin
+            | TokenType::KwCos
+            | TokenType::KwTan
+            | TokenType::KwLn
+            | TokenType::KwDeg
+            | TokenType::KwRad
+            | TokenType::KwExp => Ok(format!("({} {})", self.op.describe()?, self.arguments[0].describe()?)),
+
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::InvalidCallOp)),
         }
     }
 }
@@ -112,12 +118,14 @@ impl Expression for CallExpression {
 */
 
 pub struct NegateExpression {
-    expr: BoxedExpression
+    expr: BoxedExpression,
 }
 
 impl NegateExpression {
     pub fn new(expr: BoxedExpression) -> Box<Self> {
-        Box::new(Self{ expr })
+        Box::new(Self {
+            expr,
+        })
     }
 }
 
@@ -136,12 +144,14 @@ impl Expression for NegateExpression {
 */
 
 pub struct ValueExpression {
-    value: Number
+    value: Number,
 }
 
 impl ValueExpression {
     pub fn new(value: Number) -> Box<Self> {
-        Box::new(Self{ value })
+        Box::new(Self {
+            value,
+        })
     }
 
     pub fn parse(literal: &String) -> Box<Self> {

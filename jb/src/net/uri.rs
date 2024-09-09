@@ -39,43 +39,33 @@ use regex::Regex;
 
 static URI_REGEX: &str = r"^(?:([\w\d\+\-\.]+):)?(?://(?:([\w\d\+\._~!$&'()*+,;=:]*)@)?((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)(?::(\d*))?)?(/?[\w\d\+\._~!$&'()*+,;=]*)?(?:\?([\w\d\+\._~!$&'()*+,;=]+))?(?:#([\w\d\+\._~!$&'()*+,;=]*))?$";
 
+#[derive(Clone, Default, Debug)]
 pub struct Uri {
-    scheme: String,
+    scheme:   String,
     userinfo: String,
-    host: String,
-    port: u16,
-    path: String,
-    query: String,
-    fragment: String
+    host:     String,
+    port:     u16,
+    path:     String,
+    query:    String,
+    fragment: String,
 }
 
 #[derive(Debug)]
 pub enum UriParseError {
     NotAnUri,
-    InvalidPort
+    InvalidPort,
 }
 
 #[allow(dead_code)]
 impl Uri {
-
-    // constructors
-
     pub fn new() -> Self {
-        Uri {
-            scheme: String::new(),
-            userinfo: String::new(),
-            host: String::new(),
-            port: 0,
-            path: String::new(),
-            query: String::new(),
-            fragment: String::new()
-        }
+        Self::default()
     }
 
-    pub fn from<T: AsRef<str>>(uri_str: T) -> Result<Self, UriParseError> {
-        let mut uri = Uri::new();
+    pub fn parse<T: AsRef<str>>(uri_str: T) -> Result<Self, UriParseError> {
+        let mut uri = Uri::default();
         let regex = Regex::new(URI_REGEX).expect("Syntax error in uri parsing regex");
-        
+
         let Some(captures) = regex.captures(uri_str.as_ref()) else {
             return Err(UriParseError::NotAnUri);
         };
@@ -88,20 +78,15 @@ impl Uri {
         uri.fragment = String::from(captures.get(7).map_or("", |m| m.as_str()));
 
         let Ok(port) = captures.get(4).map_or("0", |m| m.as_str()).parse::<u16>() else {
-            return Err(UriParseError::InvalidPort)
+            return Err(UriParseError::InvalidPort);
         };
-        
+
         uri.port = port;
 
         Ok(uri)
     }
-    
+
     // public
-
-    pub fn clear(&mut self) {
-        *self = Uri::new();
-    }
-
     pub fn is_valid_url(&self) -> bool {
         !self.host.is_empty()
     }
@@ -116,21 +101,21 @@ impl Uri {
 
     pub fn scheme_default_port(&self) -> Option<u16> {
         match self.scheme.to_lowercase().as_str() {
-            "dns"       => Some(53),
-            "ftp"       => Some(21),
-            "git"       => Some(9418),
-            "http"      => Some(80),
-            "https"     => Some(443),
-            "irc"       => Some(194),
-            "sftp"      => Some(22),
-            "smtp"      => Some(465),
-            "ssmtp"     => Some(587),
-            "ssh"       => Some(22),
-            "telnet"    => Some(23),
-            "rsync"     => Some(873),
-            "ws"        => Some(80),
-            "wss"       => Some(443),
-            _ => None
+            "dns" => Some(53),
+            "ftp" => Some(21),
+            "git" => Some(9418),
+            "http" => Some(80),
+            "https" => Some(443),
+            "irc" => Some(194),
+            "sftp" => Some(22),
+            "smtp" => Some(465),
+            "ssmtp" => Some(587),
+            "ssh" => Some(22),
+            "telnet" => Some(23),
+            "rsync" => Some(873),
+            "ws" => Some(80),
+            "wss" => Some(443),
+            _ => None,
         }
     }
 
@@ -139,22 +124,61 @@ impl Uri {
     }
 
     // Setters & Getters
-    pub fn scheme(&self) -> &String { &self.scheme }
-    pub fn userinfo(&self) -> &String { &self.userinfo }
-    pub fn host(&self) -> &String { &self.host }
-    pub fn port(&self) -> u16 { self.port }
-    pub fn path(&self) -> &String { &self.path }
-    pub fn query(&self) -> &String { &self.query }
-    pub fn fragment(&self) -> &String { &self.fragment }
-    
-    pub fn set_scheme(&mut self, scheme: &str) { self.scheme = scheme.to_string(); }
-    pub fn set_userinfo(&mut self, userinfo: &str) { self.userinfo = userinfo.to_string(); }
-    pub fn set_host(&mut self, host: &str) { self.host = host.to_string() }
-    pub fn set_port(&mut self, port: u16) { self.port = port; }
-    pub fn set_path(&mut self, path: &str) { self.path = path.to_string(); }
-    pub fn set_query(&mut self, query: &str) { self.query = query.to_string(); }
-    pub fn set_fragment(&mut self, fragment: &str) { self.fragment = fragment.to_string(); }
+    pub fn scheme(&self) -> &String {
+        &self.scheme
+    }
 
+    pub fn userinfo(&self) -> &String {
+        &self.userinfo
+    }
+
+    pub fn host(&self) -> &String {
+        &self.host
+    }
+
+    pub fn port(&self) -> u16 {
+        self.port
+    }
+
+    pub fn path(&self) -> &String {
+        &self.path
+    }
+
+    pub fn query(&self) -> &String {
+        &self.query
+    }
+
+    pub fn fragment(&self) -> &String {
+        &self.fragment
+    }
+
+    pub fn set_scheme(&mut self, scheme: &str) {
+        self.scheme = scheme.to_string();
+    }
+
+    pub fn set_userinfo(&mut self, userinfo: &str) {
+        self.userinfo = userinfo.to_string();
+    }
+
+    pub fn set_host(&mut self, host: &str) {
+        self.host = host.to_string()
+    }
+
+    pub fn set_port(&mut self, port: u16) {
+        self.port = port;
+    }
+
+    pub fn set_path(&mut self, path: &str) {
+        self.path = path.to_string();
+    }
+
+    pub fn set_query(&mut self, query: &str) {
+        self.query = query.to_string();
+    }
+
+    pub fn set_fragment(&mut self, fragment: &str) {
+        self.fragment = fragment.to_string();
+    }
 
     // debugging
     pub fn debug_print(&self) {
@@ -166,5 +190,12 @@ impl Uri {
         println!("Query: {}", self.query);
         println!("Fragment: {}", self.fragment);
     }
+}
 
+impl TryFrom<&str> for Uri {
+    type Error = UriParseError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Uri::parse(value)
+    }
 }

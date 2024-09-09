@@ -1,10 +1,12 @@
-use crate::common::{bytes_to_i32, bytes_to_string, subsequence_index, I32Enum};
 use std::usize;
+
 use super::{HttpError, HttpResponse, HttpResponseStatusCode, HttpResult};
+use crate::common::{bytes_to_i32, bytes_to_string, subsequence_index, I32Enum};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub enum HttpParserState {
-    #[default] Idle,
+    #[default]
+    Idle,
     ParsingHead,
     ParsingFields,
     ParsingBodyChunked,
@@ -15,9 +17,9 @@ pub enum HttpParserState {
 
 #[derive(Debug, Default)]
 pub struct HttpResponseParser {
-    state: HttpParserState,
-    buffer: Vec<u8>,
-    size: usize,
+    state:    HttpParserState,
+    buffer:   Vec<u8>,
+    size:     usize,
     response: HttpResponse,
 }
 
@@ -82,7 +84,6 @@ impl HttpResponseParser {
         };
         second_space += first_space + 1; // since we take the index starting from the first space
 
-        
         self.response.version = bytes_to_string(&self.buffer[0..first_space]).map_err(|e| e.into())?;
         self.response.reason = bytes_to_string(&self.buffer[(first_space + 1)..second_space]).map_err(|e| e.into())?;
         self.response.status = HttpResponseStatusCode::from_i32(bytes_to_i32(&self.buffer[(first_space + 1)..second_space]).map_err(|e| e.into())?)
@@ -99,17 +100,16 @@ impl HttpResponseParser {
         };
 
         let line = &self.buffer[0..idx];
-        
+
         // empty line signifies end of fields
         if line.len() != 0 {
             let Some(colon) = line.iter().position(|ch| *ch == b':') else {
                 return Err(HttpError::InvalidFieldLine);
             };
 
-            self.response.fields.insert(
-                bytes_to_string(&line[0..colon]).map_err(|err| err.into())?.into(),
-                bytes_to_string(&line[(colon + 2)..]).map_err(|err| err.into())?
-            );
+            self.response
+                .fields
+                .insert(bytes_to_string(&line[0..colon]).map_err(|err| err.into())?.into(), bytes_to_string(&line[(colon + 2)..]).map_err(|err| err.into())?);
             self.buffer.drain(..(idx + 2));
             return Ok(true);
         }
@@ -137,7 +137,7 @@ impl HttpResponseParser {
         } else if let Some(close) = self.response.fields.get(&"Connection".into()) {
             if close == "close" {
                 self.state = HttpParserState::ParsingBodyClosed;
-                return Ok(())
+                return Ok(());
             }
         }
 

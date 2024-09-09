@@ -1,12 +1,11 @@
-
 // untested
 
 #[derive(Copy, Clone, Debug)]
 pub struct MersenneTwister64 {
-    seed: u64,
-    index: usize,
+    seed:      u64,
+    index:     usize,
     extracted: u64,
-    state: [u64; Self::n]
+    state:     [u64; Self::n],
 }
 
 impl MersenneTwister64 {
@@ -15,19 +14,22 @@ impl MersenneTwister64 {
     const c: u64 = 0xFFF7EEE000000000; // tempering bitmask
     const d: u64 = 0x5555555555555555; // additional shift/mask
     const f: u64 = 6364136223846793005;
-    const l: u64 = 43; // additional shift/mask
+    const l: u64 = 43;
+    const lower_mask: u64 = !Self::upper_mask; // additional shift/mask
     const m: usize = 156; // middle word
     const n: usize = 312; // degree of recurrence
     const r: u64 = 31; // separation pouint64_t
     const s: u64 = 17; // tempering bit shift
     const t: u64 = 37; // tempering but shift
-    const u: u64 = 29; // additional shift/mask
-    const w: u64 = 64; // word size
-    const upper_mask: u64 = (u64::MAX << Self::r);
-    const lower_mask: u64 = !Self::upper_mask;
+    const u: u64 = 29; // word size
+    const upper_mask: u64 = (u64::MAX << Self::r); // additional shift/mask
+    const w: u64 = 64;
 
     pub fn new(seed: u64) -> Self {
-        let mut mt64 = MersenneTwister64{seed: seed, index: 0, extracted: 0, state: [0u64; Self::n]};
+        let mut mt64 = MersenneTwister64 { seed:      seed,
+                                           index:     0,
+                                           extracted: 0,
+                                           state:     [0u64; Self::n], };
         mt64.state[0] = seed;
         for idx in 1..Self::n {
             let mut x = mt64.state[idx - 1];
@@ -82,16 +84,33 @@ impl MersenneTwister64 {
     pub fn twist(&mut self) {
         for idx in 0..(Self::n - Self::m) {
             let y = (self.state[idx] & Self::upper_mask) | (self.state[idx + 1] & Self::lower_mask);
-            self.state[idx] = self.state[idx + Self::m] ^ (y >> 1) ^ if y & 0x01 == 1 { Self::a } else { 0 };
+            self.state[idx] = self.state[idx + Self::m] ^
+                              (y >> 1) ^
+                              if y & 0x01 == 1 {
+                                  Self::a
+                              } else {
+                                  0
+                              };
         }
 
         for idx in (Self::n - Self::m)..(Self::n - 1) {
             let y = self.state[idx] & Self::upper_mask | self.state[idx + 1] & Self::lower_mask;
-            self.state[idx] = self.state[(idx + Self::m) - Self::n] ^ (y >> 1) ^ if y & 0x01 == 1 { Self::a } else { 0 };
+            self.state[idx] = self.state[(idx + Self::m) - Self::n] ^
+                              (y >> 1) ^
+                              if y & 0x01 == 1 {
+                                  Self::a
+                              } else {
+                                  0
+                              };
         }
 
         let y = (self.state[Self::n - 1] & Self::upper_mask) | (self.state[0] & Self::lower_mask);
-        self.state[Self::n - 1] = (self.state[Self::m - 1] & (y >> 1)) ^ if y & 0x01 == 1 { Self::a } else { 0 };
+        self.state[Self::n - 1] = (self.state[Self::m - 1] & (y >> 1)) ^
+                                  if y & 0x01 == 1 {
+                                      Self::a
+                                  } else {
+                                      0
+                                  };
         self.index = 0;
     }
 }

@@ -1,4 +1,5 @@
-use core::{fmt, result::Result};
+use core::fmt;
+use core::result::Result;
 use std::collections::HashMap;
 use std::str;
 
@@ -8,13 +9,13 @@ use std::str;
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum Value {
-    Array { value: Vec<Value> },
-    Boolean { value: bool },
-    Dict { value: HashMap<String, Value> },
-    Float { value: f64 },
-    Integer { value: i64 },
+    Array(Vec<Value>),
+    Boolean(bool),
+    Dict(HashMap<String, Value>),
+    Float(f64),
+    Integer(i128),
     Null,
-    String { value: String },
+    String(String),
 }
 
 //
@@ -25,16 +26,16 @@ pub enum Value {
 pub enum ErrorType {
     ExpectedArrayCloseOrComma,
     ExpectedDictKey,
-    ExpectedDictColonAfterKey { key: String },
+    ExpectedDictColonAfterKey(String), // key
     ExpectedDictCloseOrComma,
     UnexpectedEndOfFile,
-    UnknownKeyword { keyword: String },
-    InvalidTypeCoercion
+    UnknownKeyword(String), // keyword
+    InvalidTypeCoercion,
 }
 
 #[derive(Debug)]
 pub struct Error {
-    pub line: usize,
+    pub line:  usize,
     pub error: ErrorType,
 }
 
@@ -49,89 +50,94 @@ impl fmt::Display for Error {
 //
 #[allow(dead_code)]
 struct Parser<'a> {
-    line: usize,
-    caret: usize,
+    line:     usize,
+    caret:    usize,
     document: &'a [u8],
 }
 
 #[allow(dead_code)]
 impl Value {
-
     pub fn borrow_array(&self) -> Result<&Vec<Value>, ErrorType> {
         match self {
-            Value::Array { value } => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion)
+            Value::Array(value) => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion),
         }
     }
 
     pub fn borrow_boolean(&self) -> Result<&bool, ErrorType> {
         match self {
-            Value::Boolean { value } => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion)
+            Value::Boolean(value) => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion),
         }
     }
 
     pub fn borrow_dict(&self) -> Result<&HashMap<String, Value>, ErrorType> {
         match self {
-            Value::Dict { value } => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion)
+            Value::Dict(value) => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion),
         }
     }
 
     pub fn borrow_float(&self) -> Result<&f64, ErrorType> {
         match self {
-            Value::Float { value } => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion)
+            Value::Float(value) => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion),
         }
     }
 
-    pub fn borrow_integer(&self) -> Result<&i64, ErrorType> {
+    pub fn borrow_integer(&self) -> Result<&i128, ErrorType> {
         match self {
-            Value::Integer { value } => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion)
+            Value::Integer(value) => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion),
         }
     }
 
     pub fn is_null(&self) -> bool {
         match self {
             Value::Null => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn borrow_string(&self) -> Result<&String, ErrorType> {
         match self {
-            Value::String { value } => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion)
+            Value::String(value) => Ok(value),
+            _ => Err(ErrorType::InvalidTypeCoercion),
         }
     }
-
 }
 
 #[allow(dead_code)]
 impl Parser<'_> {
     // constructor
     fn new<'a>(document: &'a String) -> Parser<'a> {
-        Parser {
-            line: 0,
-            caret: 0,
-            document: document.as_bytes(),
-        }
+        Parser { line:     0,
+                 caret:    0,
+                 document: document.as_bytes(), }
     }
 
     // entry function
     fn parse(&mut self) -> Result<Value, Error> {
         self.skip_whitespace()?;
-        
+
         // println!("entering parse, seeing: '{}'", char::from(self.peek()?));
         match self.peek()? {
             b'{' => self.dict(),
             b'[' => self.array(),
-            b'"' => Ok(Value::String { value: self.string()? }),
-            b't' => { self.word(b"true")?; Ok(Value::Boolean { value: true }) },
-            b'f' => { self.word(b"false")?; Ok(Value::Boolean { value: false }) },
-            b'n' => { self.word(b"null")?; Ok(Value::Null) },
-            _ => self.number()
+            b'"' => Ok(Value::String(self.string()?)),
+            b't' => {
+                self.word(b"true")?;
+                Ok(Value::Boolean(true))
+            }
+            b'f' => {
+                self.word(b"false")?;
+                Ok(Value::Boolean(false))
+            }
+            b'n' => {
+                self.word(b"null")?;
+                Ok(Value::Null)
+            }
+            _ => self.number(),
         }
     }
 
@@ -144,7 +150,7 @@ impl Parser<'_> {
             self.skip_whitespace()?;
 
             if self.check(b']')? {
-                return Ok(Value::Array { value: array });
+                return Ok(Value::Array(array));
             }
 
             array.push(self.parse()?);
@@ -168,15 +174,16 @@ impl Parser<'_> {
             }
         }
 
-        if !self.check(b'.')? { // no dot so integer
+        if !self.check(b'.')? {
+            // no dot so integer
             let as_str = str::from_utf8(&self.document[start..self.caret]).unwrap();
-            return Ok(Value::Integer { value: as_str.parse().unwrap() });
+            return Ok(Value::Integer(as_str.parse().unwrap()));
         }
 
         while self.peek()?.is_ascii_digit() {
             self.advance()?;
         }
-        
+
         if self.check(b'e')? || self.check(b'E')? {
             while self.peek()?.is_ascii_digit() {
                 self.advance()?;
@@ -184,7 +191,7 @@ impl Parser<'_> {
         }
 
         let as_str = str::from_utf8(&self.document[start..self.caret]).unwrap();
-        Ok(Value::Float { value: as_str.parse().unwrap() })
+        Ok(Value::Float(as_str.parse().unwrap()))
     }
 
     fn dict(&mut self) -> Result<Value, Error> {
@@ -195,19 +202,19 @@ impl Parser<'_> {
             self.skip_whitespace()?;
 
             if self.check(b'}')? {
-                return Ok(Value::Dict { value: dict });
+                return Ok(Value::Dict(dict));
             }
 
             if !self.peek()? == b'"' {
                 return Err(self.error(ErrorType::ExpectedDictKey));
             }
-            
+
             let key = self.string()?;
-            
+
             self.skip_whitespace()?;
 
             if !self.check(b':')? {
-                return Err(self.error(ErrorType::ExpectedDictColonAfterKey { key: key }));
+                return Err(self.error(ErrorType::ExpectedDictColonAfterKey(key)));
             }
 
             self.skip_whitespace()?;
@@ -223,7 +230,7 @@ impl Parser<'_> {
     fn string(&mut self) -> Result<String, Error> {
         self.advance()?;
         let start = self.caret;
-        
+
         loop {
             if self.check(b'"')? {
                 // this can probably be from_utf8_unchecked but what do I know, lets leave unsafe for what it
@@ -240,10 +247,10 @@ impl Parser<'_> {
     fn word(&mut self, characters: &[u8]) -> Result<(), Error> {
         for char in characters.iter() {
             if self.advance()? != *char {
-                return Err(self.error(ErrorType::UnknownKeyword { keyword: String::from_utf8(characters.to_vec()).unwrap() }));
+                return Err(self.error(ErrorType::UnknownKeyword(String::from_utf8(characters.to_vec()).unwrap())));
             }
         }
-        
+
         // println!("parsed keyword!");
         Ok(())
     }
@@ -274,10 +281,8 @@ impl Parser<'_> {
     }
 
     fn error(&self, error: ErrorType) -> Error {
-        Error {
-            line: self.line,
-            error: error,
-        }
+        Error { line:  self.line,
+                error: error, }
     }
 
     fn skip_whitespace(&mut self) -> Result<(), Error> {

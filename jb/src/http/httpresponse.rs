@@ -1,6 +1,6 @@
+use super::{HttpContent, HttpResponseStatusCode};
 use crate::common::AnyCase;
 use std::collections::HashMap;
-use super::{HttpResponseStatusCode, HttpContent};
 
 #[derive(Clone, Debug, Default)]
 pub struct HttpResponse {
@@ -8,6 +8,11 @@ pub struct HttpResponse {
     pub reason: String,
     pub version: String,
     pub content: HttpContent,
-    pub fields: HashMap<AnyCase, String>
+    pub fields: HashMap<AnyCase, String>,
 }
 
+impl HttpResponse {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}

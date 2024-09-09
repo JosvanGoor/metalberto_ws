@@ -19,13 +19,16 @@ pub enum CalculatorErrorType {
 #[derive(Copy, Clone, Debug)]
 pub struct CalculatorError {
     pub caret: usize,
-    pub error_type: CalculatorErrorType
+    pub error_type: CalculatorErrorType,
 }
 
 impl CalculatorError {
     pub fn new(caret: usize, error_type: CalculatorErrorType) -> Self {
-        CalculatorError { caret, error_type }
-    }    
+        CalculatorError {
+            caret,
+            error_type,
+        }
+    }
 }
 
 pub type CalculatorResult<T> = Result<T, CalculatorError>;

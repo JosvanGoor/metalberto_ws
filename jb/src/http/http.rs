@@ -16,7 +16,7 @@ pub enum HttpError {
     ExpectedIntInHeader(String, ParseIntError), // field, error
     InvalidTransferEncoding(String),
     TooMuchDataInResponse,
-    ChunkSizeError(ParseIntError)
+    ChunkSizeError(ParseIntError),
 }
 
 impl Into<HttpError> for BytesToI32Error {
@@ -44,7 +44,7 @@ pub enum HttpMethod {
     Connect,
     Options,
     Trace,
-    Patch
+    Patch,
 }
 
 impl fmt::Display for HttpMethod {
@@ -87,7 +87,7 @@ pub enum HttpResponseStatusCode {
     SwitchingProtocols = 101,
     Processing = 102,
     EarlyHints = 103,
-    
+
     Ok = 200,
     Created = 201,
     Accepted = 202,
@@ -147,7 +147,7 @@ pub enum HttpResponseStatusCode {
     InsufficientStorage = 507,
     LoopDetected = 508,
     NotExtended = 510,
-    NetworkAuthenticationRequired = 511
+    NetworkAuthenticationRequired = 511,
 }
 
 impl Default for HttpResponseStatusCode {

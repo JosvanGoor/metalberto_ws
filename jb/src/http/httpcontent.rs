@@ -19,13 +19,16 @@ pub struct HttpContent {
 }
 
 impl HttpContent {
-
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn from_content(content_type: String, content: Vec<u8>) -> Self {
-        Self { content_type: content_type, content: content, multipart_delimiter: None }
+    pub fn with_content(content_type: String, content: Vec<u8>) -> Self {
+        Self {
+            content_type: content_type,
+            content: content,
+            multipart_delimiter: None,
+        }
     }
 
     pub fn content_length(&self) -> usize {
@@ -43,7 +46,7 @@ impl HttpContent {
     pub fn extend_from_slice(&mut self, data: &[u8]) {
         self.content.extend_from_slice(data);
     }
-    
+
     pub fn update_content_type(&mut self, content_type: Option<&String>) {
         match content_type {
             Some(content_type) => self.content_type = content_type.clone(),
@@ -89,7 +92,7 @@ impl HttpContent {
     fn write_multipart_header(&mut self, name: Option<String>, filename: Option<String>, content_type: Option<String>) {
         self.generate_delimiter();
         self.content.extend_from_slice(MultipartFilenamePrefix.as_bytes());
-        
+
         if let Some(name) = name {
             self.content.extend_from_slice(format!("{}\"{}\"", MultipartNamePrefix, name).as_bytes());
         };

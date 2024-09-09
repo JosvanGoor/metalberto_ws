@@ -1,5 +1,5 @@
-use core::str;
 use super::{CalculatorError, CalculatorErrorType, CalculatorResult, Token, TokenType};
+use core::str;
 
 pub struct Tokenizer<'src> {
     caret: usize,
@@ -7,6 +7,12 @@ pub struct Tokenizer<'src> {
 }
 
 impl<'src> Tokenizer<'src> {
+    pub fn new(expr: &'src str) -> Self {
+        Self {
+            caret: 0,
+            expr: expr.as_bytes(),
+        }
+    }
 
     pub fn tokenize(&mut self) -> CalculatorResult<Vec<Token>> {
         let mut tokens = Vec::new();
@@ -14,20 +20,21 @@ impl<'src> Tokenizer<'src> {
         self.skip_whitespace();
 
         while !self.eof() {
-
             match self.peek() {
-                b'+' => { tokens.push(self.simple_token(TokenType::Plus)); },
-                b'-' => { tokens.push(self.simple_token(TokenType::Minus)) },
-                b'*' => { tokens.push(self.simple_token(TokenType::Star)) },
-                b'/' => { tokens.push(self.simple_token(TokenType::Slash)) },
-                b'^' => { tokens.push(self.simple_token(TokenType::Hat)) },
-                b'(' => { tokens.push(self.simple_token(TokenType::LeftParen)) },
-                b')' => { tokens.push(self.simple_token(TokenType::RightParen)) },
-                b',' => { tokens.push(self.simple_token(TokenType::Comma)) },
+                b'+' => {
+                    tokens.push(self.simple_token(TokenType::Plus));
+                }
+                b'-' => tokens.push(self.simple_token(TokenType::Minus)),
+                b'*' => tokens.push(self.simple_token(TokenType::Star)),
+                b'/' => tokens.push(self.simple_token(TokenType::Slash)),
+                b'^' => tokens.push(self.simple_token(TokenType::Hat)),
+                b'(' => tokens.push(self.simple_token(TokenType::LeftParen)),
+                b')' => tokens.push(self.simple_token(TokenType::RightParen)),
+                b',' => tokens.push(self.simple_token(TokenType::Comma)),
                 b'0'..=b'9' => tokens.push(self.number()?),
                 b'a'..=b'z' | b'A'..=b'Z' | b'_' => tokens.push(self.identifier()?),
 
-                _ => return Err(CalculatorError::new(self.caret, CalculatorErrorType::UnexpectedCharacter(self.peek() as char)))
+                _ => return Err(CalculatorError::new(self.caret, CalculatorErrorType::UnexpectedCharacter(self.peek() as char))),
             }
 
             self.skip_whitespace();
@@ -35,10 +42,6 @@ impl<'src> Tokenizer<'src> {
 
         tokens.push(self.simple_token(TokenType::EndOfLine));
         Ok(tokens)
-    }
-
-    pub fn from(expr: &'src str) -> Self {
-        Self { caret: 0, expr: expr.as_bytes() }
     }
 
     fn eof(&self) -> bool {
@@ -62,11 +65,12 @@ impl<'src> Tokenizer<'src> {
         self.expr[self.caret]
     }
 
-
-
     fn simple_token(&mut self, token: TokenType) -> Token {
         self.advance();
-        Token { token: token, literal: None }
+        Token {
+            token: token,
+            literal: None,
+        }
     }
 
     fn complex_token(&self, token: TokenType, start: usize) -> CalculatorResult<Token> {
@@ -74,7 +78,10 @@ impl<'src> Tokenizer<'src> {
             return Err(CalculatorError::new(self.caret, CalculatorErrorType::UtfParseError));
         };
 
-        Ok(Token{ token: token, literal: Some(String::from(literal)) })
+        Ok(Token {
+            token: token,
+            literal: Some(String::from(literal)),
+        })
     }
 
     fn number(&mut self) -> CalculatorResult<Token> {
@@ -83,7 +90,6 @@ impl<'src> Tokenizer<'src> {
         while self.peek().is_ascii_digit() {
             self.advance();
         }
-
 
         if self.peek() == b'.' {
             self.advance();
@@ -112,7 +118,7 @@ impl<'src> Tokenizer<'src> {
                 self.advance();
             }
         }
-        
+
         self.complex_token(TokenType::Number, start)
     }
 
@@ -122,17 +128,16 @@ impl<'src> Tokenizer<'src> {
         while self.peek().is_ascii_alphanumeric() || self.peek() == b'_' {
             self.advance();
         }
-        
-        self.complex_token(TokenType::from_identifier(&self.expr[start..self.caret]), start)
+
+        self.complex_token(TokenType::identifier(&self.expr[start..self.caret]), start)
     }
 
     fn skip_whitespace(&mut self) {
         loop {
             match self.peek() {
                 b' ' | b'\r' | b'\n' | b'\t' => self.advance(),
-                _ => break
+                _ => break,
             };
         }
     }
-
 }

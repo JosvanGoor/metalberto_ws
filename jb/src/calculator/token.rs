@@ -2,7 +2,6 @@ use core::str;
 
 use super::{CalculatorError, CalculatorErrorType, CalculatorResult};
 
-
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum TokenType {
     Error,
@@ -32,11 +31,11 @@ pub enum TokenType {
     KwExp,
 
     ConstE,
-    ConstPi
+    ConstPi,
 }
 
 impl TokenType {
-    pub fn from_identifier(identifier: &[u8]) -> Self {
+    pub fn identifier(identifier: &[u8]) -> Self {
         match identifier {
             b"sqrt" => TokenType::KwSqrt,
             b"pow" => TokenType::KwPow,
@@ -51,7 +50,7 @@ impl TokenType {
 
             b"e" => TokenType::ConstE,
             b"pi" => TokenType::ConstPi,
-            _=> TokenType::Identifier
+            _ => TokenType::Identifier,
         }
     }
 
@@ -73,7 +72,7 @@ impl TokenType {
             TokenType::KwRad => Ok("rad"),
             TokenType::KwExp => Ok("exp"),
 
-            _ => Err(CalculatorError::new(0, CalculatorErrorType::TokenWithoutDisplay))
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::TokenWithoutDisplay)),
         }
     }
 }
@@ -81,9 +80,5 @@ impl TokenType {
 #[derive(Clone, Debug)]
 pub struct Token {
     pub token: TokenType,
-    pub literal: Option<String>
+    pub literal: Option<String>,
 }
-
-
-
-

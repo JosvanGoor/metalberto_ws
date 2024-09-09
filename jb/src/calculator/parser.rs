@@ -1,5 +1,9 @@
 use core::f64;
-use super::{BinaryExpression, BoxedExpression, CalculatorError, CalculatorErrorType, CalculatorResult, CallExpression, NegateExpression, Number, Token, TokenType, Tokenizer, ValueExpression};
+
+use super::{
+    BinaryExpression, BoxedExpression, CalculatorError, CalculatorErrorType, CalculatorResult, CallExpression, NegateExpression, Number, Token, TokenType,
+    Tokenizer, ValueExpression,
+};
 
 /*
     Syntax:
@@ -20,15 +24,15 @@ use super::{BinaryExpression, BoxedExpression, CalculatorError, CalculatorErrorT
                            "log" | "ln" | "deg" | "rad" | "exp"
 */
 
-
 pub struct CalculatorParser {
-    index: usize,
+    index:  usize,
     tokens: Vec<Token>,
 }
 
 impl CalculatorParser {
     pub fn new(expr: &str) -> CalculatorResult<Self> {
-        Ok(Self{ index: 0, tokens: Tokenizer::from(expr).tokenize()? })
+        Ok(Self { index:  0,
+                  tokens: Tokenizer::new(expr).tokenize()?, })
     }
 
     pub fn parse(&mut self) -> CalculatorResult<BoxedExpression> {
@@ -101,10 +105,16 @@ impl CalculatorParser {
 
     fn primary(&mut self) -> CalculatorResult<BoxedExpression> {
         match self.peek().token {
-            TokenType::ConstE => { self.advance();  Ok(ValueExpression::new(f64::consts::E)) },
-            TokenType::ConstPi => { self.advance(); Ok(ValueExpression::new(f64::consts::PI)) },
+            TokenType::ConstE => {
+                self.advance();
+                Ok(ValueExpression::new(f64::consts::E))
+            }
+            TokenType::ConstPi => {
+                self.advance();
+                Ok(ValueExpression::new(f64::consts::PI))
+            }
             TokenType::Number => Ok(ValueExpression::parse(&self.advance().literal.unwrap())),
-            
+
             TokenType::LeftParen => {
                 self.advance();
                 let expr = self.addition()?;
@@ -114,18 +124,18 @@ impl CalculatorParser {
                 Ok(expr)
             }
 
-            TokenType::KwCos  |
-            TokenType::KwDeg  |
-            TokenType::KwExp  |
-            TokenType::KwLn   |
-            TokenType::KwLog  |
-            TokenType::KwPow  |
-            TokenType::KwRad  |
-            TokenType::KwSin  |
+            TokenType::KwCos |
+            TokenType::KwDeg |
+            TokenType::KwExp |
+            TokenType::KwLn |
+            TokenType::KwLog |
+            TokenType::KwPow |
+            TokenType::KwRad |
+            TokenType::KwSin |
             TokenType::KwSqrt |
-            TokenType::KwTan => { Ok(self.call()?) }
-            
-            _ => Err(CalculatorError::new(0, CalculatorErrorType::ExpectedPrimary(self.peek().token)))
+            TokenType::KwTan => Ok(self.call()?),
+
+            _ => Err(CalculatorError::new(0, CalculatorErrorType::ExpectedPrimary(self.peek().token))),
         }
     }
 

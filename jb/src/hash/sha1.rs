@@ -1,9 +1,8 @@
-
 #[derive(Clone, Debug)]
 pub struct Sha1 {
     buffer: Vec<u8>, // this could be a vecdeque
     digest: [u32; Self::digest_ints],
-    transforms: usize
+    transforms: usize,
 }
 
 impl Sha1 {
@@ -12,7 +11,11 @@ impl Sha1 {
     const block_bytes: usize = Self::block_ints * 4;
 
     pub fn new() -> Self {
-        let mut sha1 = Self { buffer: Vec::default(), digest: [0u32; Self::digest_ints], transforms: 0 };
+        let mut sha1 = Self {
+            buffer: Vec::default(),
+            digest: [0u32; Self::digest_ints],
+            transforms: 0,
+        };
         sha1.reset();
         sha1
     }
@@ -78,16 +81,16 @@ impl Sha1 {
         let mut d = self.digest[3];
         let mut e = self.digest[4];
 
-        Self::r0(block, a, &mut b, c, d, &mut e,  0);
-        Self::r0(block, e, &mut a, b, c, &mut d,  1);
-        Self::r0(block, d, &mut e, a, b, &mut c,  2);
-        Self::r0(block, c, &mut d, e, a, &mut b,  3);
-        Self::r0(block, b, &mut c, d, e, &mut a,  4);
-        Self::r0(block, a, &mut b, c, d, &mut e,  5);
-        Self::r0(block, e, &mut a, b, c, &mut d,  6);
-        Self::r0(block, d, &mut e, a, b, &mut c,  7);
-        Self::r0(block, c, &mut d, e, a, &mut b,  8);
-        Self::r0(block, b, &mut c, d, e, &mut a,  9);
+        Self::r0(block, a, &mut b, c, d, &mut e, 0);
+        Self::r0(block, e, &mut a, b, c, &mut d, 1);
+        Self::r0(block, d, &mut e, a, b, &mut c, 2);
+        Self::r0(block, c, &mut d, e, a, &mut b, 3);
+        Self::r0(block, b, &mut c, d, e, &mut a, 4);
+        Self::r0(block, a, &mut b, c, d, &mut e, 5);
+        Self::r0(block, e, &mut a, b, c, &mut d, 6);
+        Self::r0(block, d, &mut e, a, b, &mut c, 7);
+        Self::r0(block, c, &mut d, e, a, &mut b, 8);
+        Self::r0(block, b, &mut c, d, e, &mut a, 9);
         Self::r0(block, a, &mut b, c, d, &mut e, 10);
         Self::r0(block, e, &mut a, b, c, &mut d, 11);
         Self::r0(block, d, &mut e, a, b, &mut c, 12);
@@ -158,7 +161,7 @@ impl Sha1 {
         Self::r4(block, d, &mut e, a, b, &mut c, 77);
         Self::r4(block, c, &mut d, e, a, &mut b, 78);
         Self::r4(block, b, &mut c, d, e, &mut a, 79);
-        
+
         self.digest[0] = self.digest[0].wrapping_add(a);
         self.digest[1] = self.digest[1].wrapping_add(b);
         self.digest[2] = self.digest[2].wrapping_add(c);
@@ -178,27 +181,27 @@ impl Sha1 {
         self.buffer.drain(0..Self::block_bytes);
     }
 
-    fn r0(block: &mut[u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
+    fn r0(block: &mut [u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
         *z = z.wrapping_add(((*w & (x ^ y)) ^ y).wrapping_add(block[index]).wrapping_add(0x5a827999).wrapping_add(Self::roll(v, 5)));
         *w = Self::roll(*w, 30);
     }
 
-    fn r1(block: &mut[u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
+    fn r1(block: &mut [u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
         *z = z.wrapping_add(((*w & (x ^ y)) ^ y).wrapping_add(Self::blk(block, index)).wrapping_add(0x5a827999).wrapping_add(Self::roll(v, 5)));
         *w = Self::roll(*w, 30);
     }
 
-    fn r2(block: &mut[u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
+    fn r2(block: &mut [u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
         *z = z.wrapping_add((*w ^ x ^ y).wrapping_add(Self::blk(block, index)).wrapping_add(0x6ed9eba1).wrapping_add(Self::roll(v, 5)));
         *w = Self::roll(*w, 30);
     }
 
-    fn r3(block: &mut[u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
+    fn r3(block: &mut [u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
         *z = z.wrapping_add((((*w | x) & y) | (*w & x)).wrapping_add(Self::blk(block, index)).wrapping_add(0x8f1bbcdc).wrapping_add(Self::roll(v, 5)));
         *w = Self::roll(*w, 30);
     }
 
-    fn r4(block: &mut[u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
+    fn r4(block: &mut [u32; Self::block_ints], v: u32, w: &mut u32, x: u32, y: u32, z: &mut u32, index: usize) {
         *z = z.wrapping_add((*w ^ x ^ y).wrapping_add(Self::blk(block, index)).wrapping_add(0xca62c1d6).wrapping_add(Self::roll(v, 5)));
         *w = Self::roll(*w, 30);
     }
@@ -210,5 +213,11 @@ impl Sha1 {
 
     fn roll(value: u32, bits: u32) -> u32 {
         (value << bits) | (value >> 32 - bits)
+    }
+}
+
+impl Default for Sha1 {
+    fn default() -> Self {
+        Self::new()
     }
 }

@@ -1,0 +1,9 @@
+[package]
+name = "playground"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+jb = { path = "../jb" }
+jb_derived = { path = "../jb_derived" }
+jb_platform = { path = "../jb_platform" }

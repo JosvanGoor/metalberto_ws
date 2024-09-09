@@ -8,8 +8,7 @@ use std::hash::{Hash, Hasher};
 pub struct AnyCase(String);
 
 impl AnyCase {
-
-    pub fn from_string(string: String) -> Self {
+    pub fn new(string: String) -> Self {
         Self(string)
     }
 
@@ -35,20 +34,23 @@ impl Display for AnyCase {
 impl Eq for AnyCase {}
 
 impl Hash for AnyCase {
-    fn hash<H>(&self, h: &mut H) where H: Hasher { 
+    fn hash<H>(&self, h: &mut H)
+    where
+        H: Hasher,
+    {
         self.0.to_ascii_lowercase().hash(h)
     }
 }
 
-impl Into<AnyCase> for String {
-    fn into(self) -> AnyCase {
-        AnyCase::from_string(self)
+impl From<String> for AnyCase {
+    fn from(value: String) -> Self {
+        AnyCase::new(value)
     }
 }
 
-impl Into<AnyCase> for &str {
-    fn into(self) -> AnyCase {
-        AnyCase::from_string(String::from(self))
+impl From<&str> for AnyCase {
+    fn from(value: &str) -> Self {
+        AnyCase::new(String::from(value))
     }
 }
 

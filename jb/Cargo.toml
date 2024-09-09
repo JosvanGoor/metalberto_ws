@@ -7,4 +7,5 @@ edition = "2021"
 jb_derived = { path = "../jb_derived" }
 jb_platform = { path = "../jb_platform" }
 regex = "1.10.4"
-rustls = {version = "0.23", features=["ring"], default-features = false}
+rustls = {version = "0.23", features=["ring", "std"], default-features = false}
+webpki-roots = "0.26.3"

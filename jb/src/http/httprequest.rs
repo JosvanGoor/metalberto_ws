@@ -5,12 +5,13 @@ use std::collections::HashMap;
 
 #[derive(Clone, Debug, Default)]
 pub struct HttpRequest {
-    fields: HashMap<AnyCase, String>
+    fields: HashMap<AnyCase, String>,
 }
 
 impl HttpRequest {
-
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn set_field<T: Into<AnyCase>>(&mut self, key: T, value: String) -> Option<String> {
         self.fields.insert(key.into(), value)
@@ -32,7 +33,7 @@ impl HttpRequest {
             self.fields.remove(&"Content-Type".into());
         }
 
-        self.fields.entry("Connection".into()).or_insert_with(|| "Close".into() );
+        self.fields.entry("Connection".into()).or_insert_with(|| "Close".into());
         self.fields.entry("Accept".into()).or_insert_with(|| "*/*".into());
         self.fields.insert("Host".into(), uri.host().into());
 
@@ -48,7 +49,6 @@ impl HttpRequest {
 
         buffer
     }
-
 }
 
 // Boilerplate heavy helper functions
@@ -70,5 +70,3 @@ fn write_head_line(buffer: &mut Vec<u8>, method: HttpMethod, uri: &Uri) {
 
     buffer.extend_from_slice(" HTTP/1.1\r\n".as_bytes());
 }
-
-
