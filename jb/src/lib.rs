@@ -2,9 +2,9 @@
 
 pub mod calculator;
 pub mod common;
+pub mod encoding;
 pub mod hash;
 pub mod http;
 pub mod image;
-pub mod math;
 pub mod net;
 pub mod random;

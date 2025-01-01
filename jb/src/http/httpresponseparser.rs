@@ -1,5 +1,3 @@
-use std::usize;
-
 use super::{HttpError, HttpResponse, HttpResponseStatusCode, HttpResult};
 use crate::common::{bytes_to_i32, bytes_to_string, subsequence_index, I32Enum};
 
@@ -84,9 +82,9 @@ impl HttpResponseParser {
         };
         second_space += first_space + 1; // since we take the index starting from the first space
 
-        self.response.version = bytes_to_string(&self.buffer[0..first_space]).map_err(|e| e.into())?;
-        self.response.reason = bytes_to_string(&self.buffer[(first_space + 1)..second_space]).map_err(|e| e.into())?;
-        self.response.status = HttpResponseStatusCode::from_i32(bytes_to_i32(&self.buffer[(first_space + 1)..second_space]).map_err(|e| e.into())?)
+        self.response.version = bytes_to_string(&self.buffer[0..first_space])?;
+        self.response.reason = bytes_to_string(&self.buffer[(first_space + 1)..second_space])?;
+        self.response.status = HttpResponseStatusCode::from_i32(bytes_to_i32(&self.buffer[(first_space + 1)..second_space])?)
             .ok_or(HttpError::StatusUnknown)?;
         self.buffer.drain(..(idx + 2));
         self.state = HttpParserState::ParsingFields;
@@ -102,14 +100,14 @@ impl HttpResponseParser {
         let line = &self.buffer[0..idx];
 
         // empty line signifies end of fields
-        if line.len() != 0 {
+        if !line.is_empty() {
             let Some(colon) = line.iter().position(|ch| *ch == b':') else {
                 return Err(HttpError::InvalidFieldLine);
             };
 
             self.response
                 .fields
-                .insert(bytes_to_string(&line[0..colon]).map_err(|err| err.into())?.into(), bytes_to_string(&line[(colon + 2)..]).map_err(|err| err.into())?);
+                .insert(bytes_to_string(&line[0..colon])?.into(), bytes_to_string(&line[(colon + 2)..])?);
             self.buffer.drain(..(idx + 2));
             return Ok(true);
         }
@@ -149,8 +147,8 @@ impl HttpResponseParser {
         if self.size == usize::MAX {
             // chunk size unknown
             if let Some(line_end) = subsequence_index(0, &self.buffer, b"\r\n") {
-                let size_str = bytes_to_string(&self.buffer[0..line_end]).map_err(|err| err.into())?;
-                self.size = usize::from_str_radix(&size_str, 16).map_err(|err| HttpError::ChunkSizeError(err))?;
+                let size_str = bytes_to_string(&self.buffer[0..line_end])?;
+                self.size = usize::from_str_radix(&size_str, 16).map_err(HttpError::ChunkSizeError)?;
                 // self.size = bytes_to_i32(&self.buffer[0..line_end]).map_err(|err| err.into())? as usize;
                 self.buffer.drain(0..(line_end + 2));
 

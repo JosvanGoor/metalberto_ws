@@ -11,12 +11,12 @@ use super::{
         addition        -> multiplication ( ( '+' | '-' ) multiplication )* ;
         multiplication  -> power ( ( '*' | '/' ) power )* ;
         power           -> unary ( '^' power )* ; // this way it binds to the right
-        unary           -> '-' unary | primary ;
-        primary         -> NUMBER | "(" expression ")" | call ;
-        call            -> KEYWORD "(" argument_list? ")" ;
-        argument_list   -> expression ( "," expression )* ;
+        unary           -> ( '-' unary ) | primary ;
+        primary         -> NUMBER | ( "(" expression ")" ) | call ;
+        call            -> KEYWORD argument_list? ;
+        argument_list   -> "(" expression ( "," expression )* ")" ;
 
-        NUMBER          -> [0-9]* ( '.' [0-9]+ )? ( ( 'e' | 'E' ) '-'? [0-9]+ )? ;
+        NUMBER          -> [0-9]+ ( '.' [0-9]+ )? ( ( 'e' | 'E' ) '-'? [0-9]+ )? ;
         IDENTIFIER      -> ( '_' | ALPHA ) ( ALPHANUMERIC | '_' )* ;
         ALPHA           -> [a-z] | [A-Z] ;
         ALPHANUMERIC    -> ALPHA | [0-9] ;
@@ -100,7 +100,7 @@ impl CalculatorParser {
         if self.accept(TokenType::Minus) {
             return Ok(NegateExpression::new(self.unary()?));
         }
-        Ok(self.primary()?)
+        self.primary()
     }
 
     fn primary(&mut self) -> CalculatorResult<BoxedExpression> {

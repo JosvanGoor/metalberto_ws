@@ -19,15 +19,15 @@ pub enum HttpError {
     ChunkSizeError(ParseIntError),
 }
 
-impl Into<HttpError> for BytesToI32Error {
-    fn into(self) -> HttpError {
-        HttpError::StatusParseError(self)
+impl From<BytesToI32Error> for HttpError {
+    fn from(value: BytesToI32Error) -> Self {
+        HttpError::StatusParseError(value)
     }
 }
 
-impl Into<HttpError> for Utf8Error {
-    fn into(self) -> HttpError {
-        HttpError::Utf8Error(self)
+impl From<Utf8Error> for HttpError {
+    fn from(value: Utf8Error) -> Self {
+        HttpError::Utf8Error(value)
     }
 }
 
@@ -49,23 +49,13 @@ pub enum HttpMethod {
 
 impl fmt::Display for HttpMethod {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        match self {
-            HttpMethod::Get => write!(f, "GET"),
-            HttpMethod::Head => write!(f, "HEAD"),
-            HttpMethod::Post => write!(f, "POST"),
-            HttpMethod::Put => write!(f, "PUT"),
-            HttpMethod::Delete => write!(f, "DELETE"),
-            HttpMethod::Connect => write!(f, "CONNECT"),
-            HttpMethod::Options => write!(f, "OPTIONS"),
-            HttpMethod::Trace => write!(f, "TRACE"),
-            HttpMethod::Patch => write!(f, "PATCH"),
-        }
+       write!(f, "{}", std::convert::Into::<&str>::into(*self))
     }
 }
 
-impl Into<&'static str> for HttpMethod {
-    fn into(self) -> &'static str {
-        match self {
+impl From<HttpMethod> for &str {
+    fn from(value: HttpMethod) -> Self {
+        match value {
             HttpMethod::Get => "GET",
             HttpMethod::Head => "HEAD",
             HttpMethod::Post => "POST",
@@ -79,8 +69,9 @@ impl Into<&'static str> for HttpMethod {
     }
 }
 
-#[derive(Copy, Clone, Debug, I32Enum)]
+#[derive(Copy, Clone, Debug, I32Enum, Default)]
 pub enum HttpResponseStatusCode {
+    #[default]
     Uninitialized = 0,
 
     Continue = 100,
@@ -148,10 +139,4 @@ pub enum HttpResponseStatusCode {
     LoopDetected = 508,
     NotExtended = 510,
     NetworkAuthenticationRequired = 511,
-}
-
-impl Default for HttpResponseStatusCode {
-    fn default() -> Self {
-        HttpResponseStatusCode::Uninitialized
-    }
 }

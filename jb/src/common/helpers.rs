@@ -4,7 +4,7 @@ use std::str::Utf8Error;
 /*
     Naive implementation that searches for the index of a subsequence
 */
-pub fn subsequence_index(offset: usize, buffer: &Vec<u8>, sequence: &[u8]) -> Option<usize> {
+pub fn subsequence_index(offset: usize, buffer: &[u8], sequence: &[u8]) -> Option<usize> {
     if sequence.len() > buffer.len() || offset >= (buffer.len() - sequence.len()) {
         return None;
     }
@@ -18,7 +18,7 @@ pub fn subsequence_index(offset: usize, buffer: &Vec<u8>, sequence: &[u8]) -> Op
         return Some(idx);
     }
 
-    return None;
+    None
 }
 
 pub fn bytes_to_string(bytes: &[u8]) -> Result<String, Utf8Error> {
@@ -31,5 +31,5 @@ pub enum BytesToI32Error {
     ParseIntError,
 }
 pub fn bytes_to_i32(bytes: &[u8]) -> Result<i32, BytesToI32Error> {
-    Ok(str::from_utf8(bytes).map_err(|_| BytesToI32Error::Utf8Error)?.parse::<i32>().map_err(|_| BytesToI32Error::ParseIntError)?)
+    str::from_utf8(bytes).map_err(|_| BytesToI32Error::Utf8Error)?.parse::<i32>().map_err(|_| BytesToI32Error::ParseIntError)
 }

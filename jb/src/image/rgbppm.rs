@@ -10,8 +10,8 @@ pub struct RgbPpm {
 
 impl RgbPpm {
     pub fn new(width: usize, height: usize) -> Self {
-        Self { width:  width,
-               height: height,
+        Self { width,
+               height,
                data:   vec![0; width * height * 3], }
     }
 
@@ -41,7 +41,7 @@ impl RgbPpm {
         for h in 0..self.height {
             for w in 0..self.width {
                 let index = ((h * self.width) + w) * 3;
-                write!(&mut file, "{} {} {}\n", self.data[index], self.data[index + 1], self.data[index + 2])?;
+                writeln!(&mut file, "{} {} {}", self.data[index], self.data[index + 1], self.data[index + 2])?;
             }
         }
 

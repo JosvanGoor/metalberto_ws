@@ -35,8 +35,8 @@ impl Sha1 {
 
         if old_size > (Self::block_bytes - 8) {
             self.transform(&mut block);
-            for idx in 0..(Self::block_ints - 2) {
-                block[idx] = 0;
+            for int in block.iter_mut().take(Self::block_ints - 2) {
+                *int = 0;
             }
         }
 
@@ -171,11 +171,11 @@ impl Sha1 {
     }
 
     fn write_block(&mut self, block: &mut [u32; Self::block_ints]) {
-        for idx in 0..Self::block_ints {
-            block[idx] = (self.buffer[4 * idx + 3] as u32 & 0xff) << 0
+        for (idx, int) in block.iter_mut().enumerate().take(Self::block_ints - 2) {
+            *int = (self.buffer[4 * idx + 3] as u32 & 0xff)
                 | (self.buffer[4 * idx + 2] as u32 & 0xff) << 8
                 | (self.buffer[4 * idx + 1] as u32 & 0xff) << 16
-                | (self.buffer[4 * idx + 0] as u32 & 0xff) << 24;
+                | (self.buffer[4 * idx] as u32 & 0xff) << 24;
         }
 
         self.buffer.drain(0..Self::block_bytes);
@@ -212,7 +212,7 @@ impl Sha1 {
     }
 
     fn roll(value: u32, bits: u32) -> u32 {
-        (value << bits) | (value >> 32 - bits)
+        (value << bits) | (value >> (32 - bits))
     }
 }
 

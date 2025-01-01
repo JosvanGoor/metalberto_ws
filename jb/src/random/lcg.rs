@@ -10,21 +10,21 @@ pub struct Lcg {
 
 impl Lcg {
     pub fn new(a: u32, c: u32, m: u32, seed: u32) -> Self {
-        Self { a:    a,
-               c:    c,
-               m:    m,
-               seed: seed, }
+        Self { a,
+               c,
+               m,
+               seed, }
     }
 
-    pub fn from_seed(seed: u32) -> Self {
-        let mut lcg = Self::default();
-        lcg.seed = seed;
-        lcg
+    pub fn with_seed(seed: u32) -> Self {
+        Self {
+            seed,
+            ..Default::default()
+        }
     }
 
-    pub fn next(&mut self) -> u32 {
-        self.seed = (self.a.wrapping_mul(self.seed).wrapping_add(self.c)) % self.m;
-        self.seed
+    pub fn generate(&mut self) -> u32 {
+        (self.a.wrapping_mul(self.seed).wrapping_add(self.c)) % self.m
     }
 }
 

@@ -5,7 +5,7 @@ mod expression;
 pub use expression::*;
 
 mod parser;
-pub use parser::CalculatorParser;
+pub use parser::{CalculatorParser, evaluate_calculation};
 
 mod tokenizer;
 pub use tokenizer::Tokenizer;

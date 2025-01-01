@@ -25,7 +25,7 @@ impl HttpRequest {
         let mut buffer = Vec::new();
         write_head_line(&mut buffer, method, uri);
 
-        if let Some(ref content) = content {
+        if let Some(content) = content {
             self.set_field("Content-Length", content.content_length().to_string());
             self.set_field("Content-Type", content.content_type().clone());
         } else {
@@ -43,7 +43,7 @@ impl HttpRequest {
 
         // extra empty line to end header
         buffer.extend_from_slice("\r\n".as_bytes());
-        if let Some(ref content) = content {
+        if let Some(content) = content {
             buffer.extend_from_slice(content.as_slice());
         }
 

@@ -1,5 +1,7 @@
 // untested
 
+use std::time::SystemTime;
+
 #[derive(Copy, Clone, Debug)]
 pub struct MersenneTwister64 {
     seed:      u64,
@@ -8,6 +10,7 @@ pub struct MersenneTwister64 {
     state:     [u64; Self::n],
 }
 
+#[rustfmt::skip]
 impl MersenneTwister64 {
     const a: u64 = 0xB5026F5AA96619E9; // coefficients of rational normal form twist matrix
     const b: u64 = 0x71D67FFFEDA60000; // tempering bitmask
@@ -25,8 +28,8 @@ impl MersenneTwister64 {
     const upper_mask: u64 = (u64::MAX << Self::r); // additional shift/mask
     const w: u64 = 64;
 
-    pub fn new(seed: u64) -> Self {
-        let mut mt64 = MersenneTwister64 { seed:      seed,
+    pub fn with_seed(seed: u64) -> Self {
+        let mut mt64 = MersenneTwister64 { seed,
                                            index:     0,
                                            extracted: 0,
                                            state:     [0u64; Self::n], };
@@ -43,7 +46,7 @@ impl MersenneTwister64 {
         mt64
     }
 
-    pub fn next(&mut self) -> u64 {
+    pub fn generate(&mut self) -> u64 {
         if self.index == Self::n {
             self.twist();
         }
@@ -62,7 +65,7 @@ impl MersenneTwister64 {
     pub fn discard(&mut self, mut steps: usize) {
         // take the next few until we hit a twist barrier
         while self.index != 0 && steps > 0 {
-            self.next();
+            self.generate();
             steps -= 1;
         }
 
@@ -74,7 +77,7 @@ impl MersenneTwister64 {
 
         // remove any leftover steps
         while steps > 0 {
-            self.next();
+            self.generate();
             steps -= 1;
         }
     }
@@ -112,5 +115,12 @@ impl MersenneTwister64 {
                                       0
                                   };
         self.index = 0;
+    }
+}
+
+impl Default for MersenneTwister64 {
+    fn default() -> Self {
+        let seed = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+        Self::with_seed(seed.as_nanos() as u64)
     }
 }

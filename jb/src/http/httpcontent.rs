@@ -79,7 +79,7 @@ impl HttpContent {
         let mut buffer: [u8; 2 + MultipartDelimiterSize] = [0; 2 + MultipartDelimiterSize];
 
         for it in buffer.iter_mut() {
-            *it = selection[(random.next() % max_idx) as usize];
+            *it = selection[(random.generate() % max_idx) as usize];
         }
         buffer[0] = b'-';
         buffer[1] = b'-';

@@ -1,17 +1,16 @@
-use super::{CalculatorError, CalculatorErrorType, CalculatorResult, Token, TokenType};
 use core::str;
+
+use super::{CalculatorError, CalculatorErrorType, CalculatorResult, Token, TokenType};
 
 pub struct Tokenizer<'src> {
     caret: usize,
-    expr: &'src [u8],
+    expr:  &'src [u8],
 }
 
 impl<'src> Tokenizer<'src> {
     pub fn new(expr: &'src str) -> Self {
-        Self {
-            caret: 0,
-            expr: expr.as_bytes(),
-        }
+        Self { caret: 0,
+               expr:  expr.as_bytes(), }
     }
 
     pub fn tokenize(&mut self) -> CalculatorResult<Vec<Token>> {
@@ -67,10 +66,8 @@ impl<'src> Tokenizer<'src> {
 
     fn simple_token(&mut self, token: TokenType) -> Token {
         self.advance();
-        Token {
-            token: token,
-            literal: None,
-        }
+        Token { token,
+                literal: None }
     }
 
     fn complex_token(&self, token: TokenType, start: usize) -> CalculatorResult<Token> {
@@ -78,10 +75,8 @@ impl<'src> Tokenizer<'src> {
             return Err(CalculatorError::new(self.caret, CalculatorErrorType::UtfParseError));
         };
 
-        Ok(Token {
-            token: token,
-            literal: Some(String::from(literal)),
-        })
+        Ok(Token { token,
+                   literal: Some(String::from(literal)) })
     }
 
     fn number(&mut self) -> CalculatorResult<Token> {
@@ -133,11 +128,8 @@ impl<'src> Tokenizer<'src> {
     }
 
     fn skip_whitespace(&mut self) {
-        loop {
-            match self.peek() {
-                b' ' | b'\r' | b'\n' | b'\t' => self.advance(),
-                _ => break,
-            };
+        while let b' ' | b'\r' | b'\n' | b'\t' = self.peek() {
+            self.advance();
         }
     }
 }

@@ -93,10 +93,7 @@ impl Value {
     }
 
     pub fn is_null(&self) -> bool {
-        match self {
-            Value::Null => true,
-            _ => false,
-        }
+        matches!(self, Value::Null)
     }
 
     pub fn borrow_string(&self) -> Result<&String, ErrorType> {
@@ -110,7 +107,7 @@ impl Value {
 #[allow(dead_code)]
 impl Parser<'_> {
     // constructor
-    fn new<'a>(document: &'a String) -> Parser<'a> {
+    fn new(document: &'_ str) -> Parser<'_> {
         Parser { line:     0,
                  caret:    0,
                  document: document.as_bytes(), }
@@ -281,8 +278,8 @@ impl Parser<'_> {
     }
 
     fn error(&self, error: ErrorType) -> Error {
-        Error { line:  self.line,
-                error: error, }
+        Error { line: self.line,
+                error }
     }
 
     fn skip_whitespace(&mut self) -> Result<(), Error> {
@@ -305,7 +302,7 @@ impl Parser<'_> {
 //  Public interface
 //
 #[allow(dead_code)]
-pub fn json_from_string<'a>(document: &'a String) -> Result<Value, Error> {
+pub fn json_from_string(document: &'_ str) -> Result<Value, Error> {
     let mut parser = Parser::new(document);
     parser.parse()
 }

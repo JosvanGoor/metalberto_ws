@@ -45,7 +45,7 @@ pub fn i32_enum_impl(input: TokenStream) -> Result<TokenStream, I32EnumError> {
     let enum_name = &input.ident;
 
     let pairs: &Vec<(String, i32)> = &enumerations.variants.iter().map(|variant| {
-        (variant.ident.to_string(), parse_i32_literal(&variant).unwrap())
+        (variant.ident.to_string(), parse_i32_literal(variant).unwrap())
     }).collect::<Vec<(String, i32)>>();
 
     let mut into_mapping = Vec::new();
