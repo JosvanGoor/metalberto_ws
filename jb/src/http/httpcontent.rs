@@ -25,8 +25,8 @@ impl HttpContent {
 
     pub fn with_content(content_type: String, content: Vec<u8>) -> Self {
         Self {
-            content_type: content_type,
-            content: content,
+            content_type,
+            content,
             multipart_delimiter: None,
         }
     }
@@ -48,10 +48,7 @@ impl HttpContent {
     }
 
     pub fn update_content_type(&mut self, content_type: Option<&String>) {
-        match content_type {
-            Some(content_type) => self.content_type = content_type.clone(),
-            None => (),
-        }
+        if let Some(content_type) = content_type { self.content_type = content_type.clone() }
     }
 
     pub fn set_content(&mut self, content: Vec<u8>) {

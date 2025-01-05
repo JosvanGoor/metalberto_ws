@@ -154,7 +154,7 @@ impl ValueExpression {
         })
     }
 
-    pub fn parse(literal: &String) -> Box<Self> {
+    pub fn parse(literal: &str) -> Box<Self> {
         // we can unwrap here because we verified the string already in the tokenizer
         Self::new(literal.parse::<f64>().unwrap())
     }

@@ -1,4 +1,4 @@
-use std::ffi::{c_void, CStr, CString};
+use std::ffi::{c_void, CString};
 use std::io::{Error, ErrorKind};
 
 use crate::constants::{AF_INET, AF_INET6, AF_UNSPEC, INADDR_ANY, INET6_ADDRSTRLEN};
@@ -56,9 +56,11 @@ impl SocketAddress {
     }
 
     pub fn ipv6_any(port: u16) -> Self {
-        let mut addr = SockAddrIn6::default();
-        addr.sin6_family = AF_INET6 as u16;
-        addr.sin6_port = port.to_be();
+        let addr = SockAddrIn6{
+            sin6_family: AF_INET6 as u16,
+            sin6_port: port.to_be(),
+            ..Default::default()
+        };
         Self::Ipv6(addr)
     }
 
@@ -84,16 +86,18 @@ impl SocketAddress {
     }
 
     pub fn set_ipv4_host(&mut self, hostname: &str) -> std::io::Result<()> {
-        self.set_host_ex(hostname, AF_INET as i32)
+        self.set_host_ex(hostname, AF_INET)
     }
 
     pub fn set_host(&mut self, hostname: &str) -> std::io::Result<()> {
-        self.set_host_ex(hostname, AF_UNSPEC as i32)
+        self.set_host_ex(hostname, AF_UNSPEC)
     }
 
     fn set_host_ex(&mut self, hostname: &str, family: i32) -> std::io::Result<()> {
-        let mut hints = AddrInfo::default();
-        hints.ai_family = family;
+        let hints = AddrInfo{
+            ai_family: family,
+            ..Default::default()
+        };
         
         let hostname: CString = CString::new(hostname)?;
         let mut results: *mut AddrInfo = std::ptr::null_mut();
@@ -134,11 +138,11 @@ impl SocketAddress {
         };
 
         let result = unsafe { inet_ntop(self.family() as i32, addr_ptr, buffer.as_mut_ptr(), buffer.len()) };
-        if result == std::ptr::null::<u8>() {
+        if result.is_null() {
             return String::from("Failed to find hostname");
         }
 
-        let end = buffer.iter().position(|b| *b == 0).or_else(|| Some(0)).unwrap();
+        let end = buffer.iter().position(|b| *b == 0).unwrap_or(0);
         String::from(std::str::from_utf8(&buffer[0..end]).unwrap())
     }
 

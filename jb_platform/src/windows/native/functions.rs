@@ -1,4 +1,3 @@
-use crate::constants::WSA_VERSION_2_2;
 use crate::structs::{AddrInfo, WsaData};
 use crate::types::{PSTR, PCSTR, WORD};
 use std::ffi::c_void;

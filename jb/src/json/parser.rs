@@ -1,110 +1,15 @@
-use core::fmt;
-use core::result::Result;
 use std::collections::HashMap;
 use std::str;
 
-//
-//  Value stuff
-//
-#[derive(Debug)]
-#[allow(dead_code)]
-pub enum Value {
-    Array(Vec<Value>),
-    Boolean(bool),
-    Dict(HashMap<String, Value>),
-    Float(f64),
-    Integer(i128),
-    Null,
-    String(String),
-}
+use super::error::JsonErrorType;
+use super::{JsonError, JsonResult, Value};
 
-//
-//  Error stuff
-//
-#[derive(Debug)]
-#[allow(dead_code)] // we allow dead code since we don't read the error codes ourselves, that is for the user
-pub enum ErrorType {
-    ExpectedArrayCloseOrComma,
-    ExpectedDictKey,
-    ExpectedDictColonAfterKey(String), // key
-    ExpectedDictCloseOrComma,
-    UnexpectedEndOfFile,
-    UnknownKeyword(String), // keyword
-    InvalidTypeCoercion,
-}
-
-#[derive(Debug)]
-pub struct Error {
-    pub line:  usize,
-    pub error: ErrorType,
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?} on line {}", self.error, self.line)
-    }
-}
-
-//
-//  Parser stuff
-//
-#[allow(dead_code)]
 struct Parser<'a> {
     line:     usize,
     caret:    usize,
     document: &'a [u8],
 }
 
-#[allow(dead_code)]
-impl Value {
-    pub fn borrow_array(&self) -> Result<&Vec<Value>, ErrorType> {
-        match self {
-            Value::Array(value) => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion),
-        }
-    }
-
-    pub fn borrow_boolean(&self) -> Result<&bool, ErrorType> {
-        match self {
-            Value::Boolean(value) => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion),
-        }
-    }
-
-    pub fn borrow_dict(&self) -> Result<&HashMap<String, Value>, ErrorType> {
-        match self {
-            Value::Dict(value) => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion),
-        }
-    }
-
-    pub fn borrow_float(&self) -> Result<&f64, ErrorType> {
-        match self {
-            Value::Float(value) => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion),
-        }
-    }
-
-    pub fn borrow_integer(&self) -> Result<&i128, ErrorType> {
-        match self {
-            Value::Integer(value) => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion),
-        }
-    }
-
-    pub fn is_null(&self) -> bool {
-        matches!(self, Value::Null)
-    }
-
-    pub fn borrow_string(&self) -> Result<&String, ErrorType> {
-        match self {
-            Value::String(value) => Ok(value),
-            _ => Err(ErrorType::InvalidTypeCoercion),
-        }
-    }
-}
-
-#[allow(dead_code)]
 impl Parser<'_> {
     // constructor
     fn new(document: &'_ str) -> Parser<'_> {
@@ -114,7 +19,7 @@ impl Parser<'_> {
     }
 
     // entry function
-    fn parse(&mut self) -> Result<Value, Error> {
+    fn parse(&mut self) -> JsonResult<Value> {
         self.skip_whitespace()?;
 
         // println!("entering parse, seeing: '{}'", char::from(self.peek()?));
@@ -139,7 +44,7 @@ impl Parser<'_> {
     }
 
     // specific parsers
-    fn array(&mut self) -> Result<Value, Error> {
+    fn array(&mut self) -> JsonResult<Value> {
         self.advance()?;
         let mut array: Vec<Value> = Vec::new();
 
@@ -154,12 +59,12 @@ impl Parser<'_> {
 
             self.skip_whitespace()?;
             if self.peek()? != b']' && !self.check(b',')? {
-                return Err(self.error(ErrorType::ExpectedArrayCloseOrComma));
+                return Err(self.error(JsonErrorType::ExpectedArrayCloseOrComma));
             }
         }
     }
 
-    fn number(&mut self) -> Result<Value, Error> {
+    fn number(&mut self) -> JsonResult<Value> {
         let start = self.caret;
         self.check(b'-')?;
 
@@ -191,7 +96,7 @@ impl Parser<'_> {
         Ok(Value::Float(as_str.parse().unwrap()))
     }
 
-    fn dict(&mut self) -> Result<Value, Error> {
+    fn dict(&mut self) -> JsonResult<Value> {
         self.advance()?; // skip '{'
         let mut dict: HashMap<String, Value> = HashMap::new();
 
@@ -203,7 +108,7 @@ impl Parser<'_> {
             }
 
             if !self.peek()? == b'"' {
-                return Err(self.error(ErrorType::ExpectedDictKey));
+                return Err(self.error(JsonErrorType::ExpectedDictKey));
             }
 
             let key = self.string()?;
@@ -211,7 +116,7 @@ impl Parser<'_> {
             self.skip_whitespace()?;
 
             if !self.check(b':')? {
-                return Err(self.error(ErrorType::ExpectedDictColonAfterKey(key)));
+                return Err(self.error(JsonErrorType::ExpectedDictColonAfterKey(key)));
             }
 
             self.skip_whitespace()?;
@@ -219,12 +124,12 @@ impl Parser<'_> {
             self.skip_whitespace()?;
 
             if self.peek()? != b'}' && !self.check(b',')? {
-                return Err(self.error(ErrorType::ExpectedDictCloseOrComma));
+                return Err(self.error(JsonErrorType::ExpectedDictCloseOrComma));
             }
         }
     }
 
-    fn string(&mut self) -> Result<String, Error> {
+    fn string(&mut self) -> JsonResult<String> {
         self.advance()?;
         let start = self.caret;
 
@@ -241,10 +146,10 @@ impl Parser<'_> {
         }
     }
 
-    fn word(&mut self, characters: &[u8]) -> Result<(), Error> {
+    fn word(&mut self, characters: &[u8]) -> JsonResult<()> {
         for char in characters.iter() {
             if self.advance()? != *char {
-                return Err(self.error(ErrorType::UnknownKeyword(String::from_utf8(characters.to_vec()).unwrap())));
+                return Err(self.error(JsonErrorType::UnknownKeyword(String::from_utf8(characters.to_vec()).unwrap())));
             }
         }
 
@@ -253,21 +158,21 @@ impl Parser<'_> {
     }
 
     // utility
-    fn advance(&mut self) -> Result<u8, Error> {
+    fn advance(&mut self) -> JsonResult<u8> {
         let ch = self.peek()?;
         self.caret += 1;
         Ok(ch)
     }
 
-    fn peek(&self) -> Result<u8, Error> {
+    fn peek(&self) -> JsonResult<u8> {
         if self.caret >= self.document.len() {
-            return Err(self.error(ErrorType::UnexpectedEndOfFile));
+            return Err(self.error(JsonErrorType::UnexpectedEndOfFile));
         }
         // println!(" peek: i: {:03}, {}", self.caret, char::from(self.document[self.caret]));
         Ok(self.document[self.caret])
     }
 
-    fn check(&mut self, expected: u8) -> Result<bool, Error> {
+    fn check(&mut self, expected: u8) -> JsonResult<bool> {
         // println!("check: i: {}, '{}' (?: '{}')", self.caret, char::from(self.document[self.caret]), char::from(expected));
         if self.peek()? != expected {
             return Ok(false);
@@ -277,12 +182,12 @@ impl Parser<'_> {
         Ok(true)
     }
 
-    fn error(&self, error: ErrorType) -> Error {
-        Error { line: self.line,
+    fn error(&self, error: JsonErrorType) -> JsonError {
+        JsonError { line: self.line,
                 error }
     }
 
-    fn skip_whitespace(&mut self) -> Result<(), Error> {
+    fn skip_whitespace(&mut self) -> JsonResult<()> {
         loop {
             match self.peek()? {
                 b' ' => self.caret += 1,
@@ -302,7 +207,7 @@ impl Parser<'_> {
 //  Public interface
 //
 #[allow(dead_code)]
-pub fn json_from_string(document: &'_ str) -> Result<Value, Error> {
+pub fn json_from_string(document: &'_ str) -> JsonResult<Value> {
     let mut parser = Parser::new(document);
     parser.parse()
 }
