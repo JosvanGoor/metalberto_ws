@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::{JsonMappingError, Value};
 
 pub trait FromJson where Self: Sized {

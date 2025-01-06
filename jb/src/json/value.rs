@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::error::{JsonErrorType, JsonMappingError};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Value {
     Array(Vec<Value>),
     Boolean(bool),

@@ -1,59 +1,26 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Data, DataStruct, DeriveInput, Ident, Type};
+use syn::{Data, DataStruct, DeriveInput, Ident};
 
 use crate::error::{JbDeriveError, JbDeriveResult};
 
-struct Field {
-    ident:     Ident,
-    path:      String,
-    is_option: bool,
-}
-
-impl Field {
-    fn new(ident: Ident, path: String, is_option: bool) -> Self {
-        Self { ident,
-               path,
-               is_option }
-    }
-}
-
-// MARK: Parsing
-fn type_path(ty: &Type) -> JbDeriveResult<String> {
-    match ty {
-        Type::Path(type_path) => {
-            Ok(type_path.path.segments.iter().map(|seg| seg.ident.to_string()).collect::<Vec<String>>().join("::"))
-        }
-        _ => Err(JbDeriveError::FailedToGetTypePath),
-    }
-}
-
-fn is_option(path: &str) -> bool {
-    matches!(path, "Option" | "option::Option" | "std::option::Option")
-}
-
-fn gather_fields(input: &DataStruct) -> JbDeriveResult<Vec<Field>> {
+fn gather_fields(input: &DataStruct) -> JbDeriveResult<Vec<Ident>> {
     input.fields
          .iter()
          .map(|field| {
              let Some(ref ident) = field.ident else {
                  return Err(JbDeriveError::UnnamedFieldNotSupported);
              };
-             let path = type_path(&field.ty)?;
-             let is_option = is_option(&path);
-             Ok(Field::new(ident.clone(), path, is_option))
+             Ok(ident.clone())
          })
          .collect()
 }
 
-// MARK: Emitting
-fn emit_assignment(field: &Field) -> proc_macro2::TokenStream {
-    let ident = &field.ident;
-    let ident_str = field.ident.to_string();
+fn emit_assignment(ident: &Ident) -> proc_macro2::TokenStream {
+    let ident_str = ident.to_string();
     quote! { json.insert(String::from(#ident_str), self.#ident.into_json()); }
 }
 
-// MARK: Impl
 pub fn into_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
     let input: DeriveInput = syn::parse(input)?;
 
@@ -67,10 +34,10 @@ pub fn into_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
 
     let token_stream = quote! {
         impl IntoJson for #struct_ident {
-            fn into_json(self) -> Value {
-                let mut json: HashMap<String, Value> = HashMap::new();
+            fn into_json(self) -> jb::json::Value {
+                let mut json: std::collections::HashMap<String, Value> = HashMap::new();
                 #(#assignments)*
-                Value::Dict(json)
+                jb::json::Value::Dict(json)
             }
         }
     };

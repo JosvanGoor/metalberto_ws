@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::io::{Result, Write};
+use std::str;
 
 use super::Value;
 
@@ -49,4 +50,10 @@ fn write(output: &mut impl Write, value: &Value) -> Result<()> {
 
 pub fn write_to_json(output: &mut impl Write, value: &Value) -> Result<()> {
     write(output, value)
+}
+
+pub fn json_to_string(value: &Value) -> String{
+    let mut output: Vec<u8> = Vec::new();
+    write_to_json(&mut output, value).unwrap();
+    str::from_utf8(&output).unwrap().into()
 }

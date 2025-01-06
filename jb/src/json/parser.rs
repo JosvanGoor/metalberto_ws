@@ -168,7 +168,7 @@ impl Parser<'_> {
         if self.caret >= self.document.len() {
             return Err(self.error(JsonErrorType::UnexpectedEndOfFile));
         }
-        // println!(" peek: i: {:03}, {}", self.caret, char::from(self.document[self.caret]));
+        println!(" peek: i: {:03}, {}", self.caret, char::from(self.document[self.caret]));
         Ok(self.document[self.caret])
     }
 
@@ -189,13 +189,16 @@ impl Parser<'_> {
 
     fn skip_whitespace(&mut self) -> JsonResult<()> {
         loop {
+            println!("skipping whitespace, caret at {}", self.caret);
             match self.peek()? {
                 b' ' => self.caret += 1,
                 b'\t' => self.caret += 1,
+                b'\r' => self.caret += 1,
                 b'\n' => {
+                    println!("skipped newline!");
                     self.caret += 1;
                     self.line += 1
-                }
+                },
                 _ => break,
             }
         }
