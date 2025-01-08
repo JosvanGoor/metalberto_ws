@@ -9,3 +9,4 @@ pub mod image;
 pub mod json;
 pub mod net;
 pub mod random;
+pub mod utility;

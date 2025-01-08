@@ -14,38 +14,38 @@ pub enum Value {
 }
 
 impl Value {
-    pub fn borrow_array(&self) -> Result<&Vec<Value>, JsonErrorType> {
+    pub fn borrow_array(&self) -> Result<&Vec<Value>, JsonMappingError> {
         match self {
             Value::Array(value) => Ok(value),
-            _ => Err(JsonErrorType::InvalidTypeCoercion),
+            _ => Err(JsonMappingError::TypeMismatch),
         }
     }
 
-    pub fn borrow_boolean(&self) -> Result<&bool, JsonErrorType> {
+    pub fn borrow_boolean(&self) -> Result<&bool, JsonMappingError> {
         match self {
             Value::Boolean(value) => Ok(value),
-            _ => Err(JsonErrorType::InvalidTypeCoercion),
+            _ => Err(JsonMappingError::TypeMismatch),
         }
     }
 
-    pub fn borrow_dict(&self) -> Result<&HashMap<String, Value>, JsonErrorType> {
+    pub fn borrow_dict(&self) -> Result<&HashMap<String, Value>, JsonMappingError> {
         match self {
             Value::Dict(value) => Ok(value),
-            _ => Err(JsonErrorType::InvalidTypeCoercion),
+            _ => Err(JsonMappingError::TypeMismatch),
         }
     }
 
-    pub fn borrow_float(&self) -> Result<&f64, JsonErrorType> {
+    pub fn borrow_float(&self) -> Result<&f64, JsonMappingError> {
         match self {
             Value::Float(value) => Ok(value),
-            _ => Err(JsonErrorType::InvalidTypeCoercion),
+            _ => Err(JsonMappingError::TypeMismatch),
         }
     }
 
-    pub fn borrow_integer(&self) -> Result<&i128, JsonErrorType> {
+    pub fn borrow_integer(&self) -> Result<&i128, JsonMappingError> {
         match self {
             Value::Integer(value) => Ok(value),
-            _ => Err(JsonErrorType::InvalidTypeCoercion),
+            _ => Err(JsonMappingError::TypeMismatch),
         }
     }
 
@@ -53,10 +53,10 @@ impl Value {
         matches!(self, Value::Null)
     }
 
-    pub fn borrow_string(&self) -> Result<&String, JsonErrorType> {
+    pub fn borrow_string(&self) -> Result<&String, JsonMappingError> {
         match self {
             Value::String(value) => Ok(value),
-            _ => Err(JsonErrorType::InvalidTypeCoercion),
+            _ => Err(JsonMappingError::TypeMismatch),
         }
     }
 }

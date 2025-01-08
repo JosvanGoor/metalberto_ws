@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-
 use super::{JsonMappingError, Value};
 
-pub trait FromJson where Self: Sized {
+pub trait FromJson
+    where Self: Sized
+{
     fn from_json(value: Value) -> std::result::Result<Self, JsonMappingError>;
 }
 
@@ -34,7 +34,7 @@ from_json_fundamentals!(String);
 impl<T: FromJson> FromJson for Option<T> {
     fn from_json(value: Value) -> std::result::Result<Self, JsonMappingError> {
         if matches!(value, Value::Null) {
-            return Ok(None)
+            return Ok(None);
         }
         Ok(Some(T::from_json(value)?))
     }

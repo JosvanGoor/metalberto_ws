@@ -11,7 +11,6 @@ struct Parser<'a> {
 }
 
 impl Parser<'_> {
-    // constructor
     fn new(document: &'_ str) -> Parser<'_> {
         Parser { line:     0,
                  caret:    0,
@@ -22,7 +21,6 @@ impl Parser<'_> {
     fn parse(&mut self) -> JsonResult<Value> {
         self.skip_whitespace()?;
 
-        // println!("entering parse, seeing: '{}'", char::from(self.peek()?));
         match self.peek()? {
             b'{' => self.dict(),
             b'[' => self.array(),
@@ -135,10 +133,7 @@ impl Parser<'_> {
 
         loop {
             if self.check(b'"')? {
-                // this can probably be from_utf8_unchecked but what do I know, lets leave unsafe for what it
-                // is for now
                 let string = String::from_utf8(self.document[start..(self.caret - 1)].to_vec()).unwrap();
-                // println!("Parsed string: '{}'", string);
                 return Ok(string);
             }
             self.check(b'\\')?;
@@ -153,7 +148,6 @@ impl Parser<'_> {
             }
         }
 
-        // println!("parsed keyword!");
         Ok(())
     }
 
@@ -168,7 +162,7 @@ impl Parser<'_> {
         if self.caret >= self.document.len() {
             return Err(self.error(JsonErrorType::UnexpectedEndOfFile));
         }
-        println!(" peek: i: {:03}, {}", self.caret, char::from(self.document[self.caret]));
+        // println!(" peek: i: {:03}, {}", self.caret, char::from(self.document[self.caret]));
         Ok(self.document[self.caret])
     }
 
@@ -189,13 +183,11 @@ impl Parser<'_> {
 
     fn skip_whitespace(&mut self) -> JsonResult<()> {
         loop {
-            println!("skipping whitespace, caret at {}", self.caret);
             match self.peek()? {
                 b' ' => self.caret += 1,
                 b'\t' => self.caret += 1,
                 b'\r' => self.caret += 1,
                 b'\n' => {
-                    println!("skipped newline!");
                     self.caret += 1;
                     self.line += 1
                 },

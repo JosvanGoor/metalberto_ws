@@ -6,7 +6,6 @@ use crate::error::{JbDeriveError, JbDeriveResult};
 
 struct Field {
     ident:     Ident,
-    path:      Type,
     is_option: bool,
 }
 
@@ -34,33 +33,20 @@ fn gather_fields(input: &DataStruct) -> JbDeriveResult<Vec<Field>> {
              let path = type_path(&field.ty)?;
              let is_option = is_option(&path);
              Ok(Field { ident: ident.clone(),
-                        path: field.ty.clone(),
                         is_option })
          })
          .collect()
 }
 
-fn create_option_path(path: &Type) -> proc_macro2::TokenStream {
-    let string = quote!{#path}.to_string();
-    let (option, t) = string.split_once("<").expect("Option type incomplete?");
-    
-
-    // quote! { #option::<#t }.into
-    todo!()
-}
-
 fn emit_assignment(field: &Field) -> proc_macro2::TokenStream {
     let ident = &field.ident;
     let ident_str = field.ident.to_string();
-    let path = &field.path;
 
     if field.is_option {
         quote! { #ident: jb::json::helpers::get_or_none(&json, #ident_str)?, }
     } else {
         quote! { #ident: jb::json::helpers::get_or_error(&json, #ident_str)?, }
     }
-
-    //(*json.get(#ident_str).ok_or(jb::json::JsonMappingError::FieldError(#ident_str.into()))?).from_json()?
 }
 
 pub fn from_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
@@ -87,8 +73,6 @@ pub fn from_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
             }
         }
     };
-
-    println!("{}", token_stream);
 
     Ok(token_stream.into())
 }

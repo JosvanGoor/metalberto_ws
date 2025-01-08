@@ -1,1 +1,15 @@
-{"from":"Jos van Goor","from_id":"user643242638","type":"message","text":"Jij weet hoe telegram werkt, waar zijn de gifjes? 😂😇","id":21,"date_unixtime":"1550056559","date":"2019-02-13T12:15:59","text_entities":[{"type":"plain","text":"Jij weet hoe telegram werkt, waar zijn de gifjes? 😂😇"}]}
+{
+    "from": "Jos van Goor",
+    "from_id": "user643242638",
+    "type": "message",
+    "text": "Jij weet hoe telegram werkt, waar zijn de gifjes? 😂😇",
+    "id": 21,
+    "date_unixtime": "1550056559",
+    "date": "2019-02-13T12:15:59",
+    "text_entities": [
+        {
+            "type": "plain",
+            "text": "Jij weet hoe telegram werkt, waar zijn de gifjes? 😂😇"
+        }
+    ]
+}

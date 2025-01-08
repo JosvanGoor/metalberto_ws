@@ -13,8 +13,8 @@ impl HttpRequest {
         Self::default()
     }
 
-    pub fn set_field<T: Into<AnyCase>>(&mut self, key: T, value: String) -> Option<String> {
-        self.fields.insert(key.into(), value)
+    pub fn set_field<T: Into<AnyCase>>(&mut self, key: T, value: &str) -> Option<String> {
+        self.fields.insert(key.into(), value.into())
     }
 
     pub fn get_field<T: Into<AnyCase>>(&mut self, key: T) -> Option<&String> {
@@ -26,8 +26,8 @@ impl HttpRequest {
         write_head_line(&mut buffer, method, uri);
 
         if let Some(content) = content {
-            self.set_field("Content-Length", content.content_length().to_string());
-            self.set_field("Content-Type", content.content_type().clone());
+            self.set_field("Content-Length", &format!("{}", content.content_length()));
+            self.set_field("Content-Type", content.content_type());
         } else {
             self.fields.remove(&"Content-Length".into());
             self.fields.remove(&"Content-Type".into());

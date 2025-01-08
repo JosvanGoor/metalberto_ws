@@ -35,13 +35,12 @@ pub fn into_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
     let token_stream = quote! {
         impl IntoJson for #struct_ident {
             fn into_json(self) -> jb::json::Value {
-                let mut json: std::collections::HashMap<String, Value> = HashMap::new();
+                let mut json: std::collections::HashMap<String, jb::json::Value> = std::collections::HashMap::new();
                 #(#assignments)*
                 jb::json::Value::Dict(json)
             }
         }
     };
 
-    // println!("{}", token_stream);
     Ok(token_stream.into())
 }

@@ -1,10 +1,11 @@
-use jb::calculator::{evaluate_calculation, CalculatorParser};
+use std::sync::Arc;
 
+mod telegram;
+mod utility;
 
 fn main() {
-    let expr = "1 + 1 + 1";
-    let ast = CalculatorParser::new(expr).unwrap().parse().unwrap();
-    println!("{}", ast.describe().unwrap());
+    let root_store = rustls::RootCertStore::from_iter(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
+    let config = Arc::new(rustls::ClientConfig::builder().with_root_certificates(root_store).with_no_client_auth());
 
-    println!("{}", evaluate_calculation(expr).unwrap())
+    
 }

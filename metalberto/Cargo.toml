@@ -7,5 +7,5 @@ edition = "2021"
 jb = { path = "../jb" }
 jb_derived = { path = "../jb_derived" }
 jb_platform = { path = "../jb_platform" }
-rustls = {version = "0.23", features=["ring"], default-features = true}
+rustls = {version = "0.23", features=["ring", "std"], default-features = true}
 webpki-roots = "0.26.3"

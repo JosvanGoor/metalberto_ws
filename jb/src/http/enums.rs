@@ -69,7 +69,7 @@ impl From<HttpMethod> for &str {
     }
 }
 
-#[derive(Copy, Clone, Debug, I32Enum, Default)]
+#[derive(Copy, Clone, Debug, I32Enum, Default, PartialEq, Eq)]
 pub enum HttpResponseStatusCode {
     #[default]
     Uninitialized = 0,

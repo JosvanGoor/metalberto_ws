@@ -13,8 +13,8 @@ const MultipartFilenamePrefix: &str = "; filename=";
 
 #[derive(Clone, Debug, Default)]
 pub struct HttpContent {
-    content_type: String,
-    content: Vec<u8>,
+    content_type:        String,
+    content:             Vec<u8>,
     multipart_delimiter: Option<String>,
 }
 
@@ -23,12 +23,10 @@ impl HttpContent {
         Self::default()
     }
 
-    pub fn with_content(content_type: String, content: Vec<u8>) -> Self {
-        Self {
-            content_type,
-            content,
-            multipart_delimiter: None,
-        }
+    pub fn with_content(content_type: &str, content: Vec<u8>) -> Self {
+        Self { content_type: String::from(content_type),
+               content,
+               multipart_delimiter: None }
     }
 
     pub fn content_length(&self) -> usize {
@@ -48,7 +46,9 @@ impl HttpContent {
     }
 
     pub fn update_content_type(&mut self, content_type: Option<&String>) {
-        if let Some(content_type) = content_type { self.content_type = content_type.clone() }
+        if let Some(content_type) = content_type {
+            self.content_type = content_type.clone()
+        }
     }
 
     pub fn set_content(&mut self, content: Vec<u8>) {
