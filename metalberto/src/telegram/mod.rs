@@ -1,5 +1,5 @@
 mod feed;
-// pub use feed::Feed;
+pub use feed::feed;
 
 mod types;
 pub use types::*;

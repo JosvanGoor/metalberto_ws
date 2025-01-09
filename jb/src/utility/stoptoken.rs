@@ -19,3 +19,9 @@ impl StopToken {
         self.stop_requested.store(true, Ordering::Release);
     }
 }
+
+impl Default for StopToken {
+    fn default() -> Self {
+        Self::new()
+    }
+}

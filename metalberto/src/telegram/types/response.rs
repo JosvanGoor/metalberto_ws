@@ -4,6 +4,7 @@ use super::Update;
 
 #[derive(Default, Debug, Clone, FromJson)]
 pub struct Response {
-    ok: bool,
-    result: Vec<Update>,
+    pub ok: bool,
+    pub result: Vec<Update>,
+    pub description: Option<String>,
 }

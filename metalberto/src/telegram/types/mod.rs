@@ -5,6 +5,7 @@ mod chat;
 pub use chat::Chat;
 
 mod message;
+pub use message::{Message, MessageType};
 
 mod response;
 pub use response::Response;
@@ -13,7 +14,7 @@ mod rights;
 pub use rights::Rights;
 
 mod update;
-pub use update::Update;
+pub use update::{Update, UpdateType};
 
 mod user;
 pub use user::User;

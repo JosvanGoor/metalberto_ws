@@ -8,8 +8,8 @@ use std::hash::{Hash, Hasher};
 pub struct AnyCase(String);
 
 impl AnyCase {
-    pub fn new(string: String) -> Self {
-        Self(string)
+    pub fn new(string: &str) -> Self {
+        Self(String::from(string))
     }
 
     pub fn into_inner(self) -> String {
@@ -44,13 +44,19 @@ impl Hash for AnyCase {
 
 impl From<String> for AnyCase {
     fn from(value: String) -> Self {
-        AnyCase::new(value)
+        Self(value)
+    }
+}
+
+impl From<&String> for AnyCase {
+    fn from(value: &String) -> Self {
+        Self(value.clone())
     }
 }
 
 impl From<&str> for AnyCase {
     fn from(value: &str) -> Self {
-        AnyCase::new(String::from(value))
+        AnyCase::new(value)
     }
 }
 

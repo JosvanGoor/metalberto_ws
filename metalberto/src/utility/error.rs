@@ -1,17 +1,20 @@
-use jb::http::HttpError;
+use jb::http::{HttpError, HttpResponseStatusCode};
 use jb::json::{JsonError, JsonMappingError};
 use jb::net::UriParseError;
 
 
 #[derive(Debug)]
 pub enum TelegramError {
-    DnsError(String),
-    IoError(std::io::Error),
-    RustlsError(rustls::Error),
-    UriError(UriParseError),
-    HttpError(HttpError),
-    JsonError(JsonError),
-    MappingError(JsonMappingError)
+    Dns(String),
+    Io(std::io::Error),
+    Rustls(rustls::Error),
+    Uri(UriParseError),
+    Http(HttpError),
+    Json(JsonError),
+    Mapping(JsonMappingError),
+    HttpResponseCode(HttpResponseStatusCode),
+    TelegramResponse(String), // error description
+    ConnectionClosed,
 }
 
 pub type TelegramResult<T> = std::result::Result<T, TelegramError>;
@@ -19,36 +22,42 @@ pub type TelegramResult<T> = std::result::Result<T, TelegramError>;
 // MARK: from
 impl From<std::io::Error> for TelegramError {
     fn from(value: std::io::Error) -> Self {
-        TelegramError::IoError(value)
+        TelegramError::Io(value)
     }
 }
 
 impl From<rustls::Error> for TelegramError {
     fn from(value: rustls::Error) -> Self {
-        TelegramError::RustlsError(value)
+        TelegramError::Rustls(value)
     }
 }
 
 impl From<UriParseError> for TelegramError {
     fn from(value: UriParseError) -> Self {
-        TelegramError::UriError(value)
+        TelegramError::Uri(value)
     }
 }
 
 impl From<HttpError> for TelegramError {
     fn from(value: HttpError) -> Self {
-        TelegramError::HttpError(value)
+        TelegramError::Http(value)
     }
 }
 
 impl From<JsonError> for TelegramError {
     fn from(value: JsonError) -> Self {
-        TelegramError::JsonError(value)
+        TelegramError::Json(value)
     }
 }
 
 impl From<JsonMappingError> for TelegramError {
     fn from(value: JsonMappingError) -> Self {
-        TelegramError::MappingError(value)
+        TelegramError::Mapping(value)
+    }
+}
+
+impl From<HttpResponseStatusCode> for TelegramError {
+    fn from(value: HttpResponseStatusCode) -> Self {
+        TelegramError::HttpResponseCode(value)
     }
 }

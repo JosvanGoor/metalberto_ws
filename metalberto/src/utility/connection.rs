@@ -16,7 +16,7 @@ pub struct Connection {
 impl Connection {
     pub fn new(config: Arc<ClientConfig>, url: &str) -> TelegramResult<Self> {
         let host: String = url.into();
-        let uri = host.clone().try_into().map_err(|err| TelegramError::DnsError(format!("{:?}", err)))?;
+        let uri = host.clone().try_into().map_err(|err| TelegramError::Dns(format!("{:?}", err)))?;
         let connection = ClientConnection::new(config, uri)?;
         let socket = TcpStream::connect(url)?;
         Ok(Self{host, connection, socket})
