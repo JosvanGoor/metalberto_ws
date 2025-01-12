@@ -1,2 +1,7 @@
+/*
+    imports from FFI
+*/
 
-pub use jb_platform::{time, result};
+#![allow(unused_imports)]
+pub use jb_platform::time;
+// pub use jb_platform::result::{FfiError, FfiResult};

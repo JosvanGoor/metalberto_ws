@@ -24,9 +24,6 @@ impl Time {
 
     pub fn format(&self, format: &str) -> FfiResult<String> {
         let expanded_ptr = unsafe { localtime(&self.0) };
-        let on_return = OnReturn::new(|| unsafe { 
-            free(expanded_ptr as *mut c_void);
-        });
 
         if expanded_ptr.is_null() {
             return Err(FfiError::FailedToAllocate);
