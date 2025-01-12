@@ -4,7 +4,7 @@ use std::sync::Arc;
 use jb::json::FromJson;
 use jb::utility::StopToken;
 use rustls::crypto::CryptoProvider;
-use telegram::{feed, MessageType, Update, UpdateType};
+use telegram::{feed, MessageType, TelegramApi, Update, UpdateType};
 
 mod telegram;
 mod utility;
@@ -21,31 +21,6 @@ fn main() {
     let secret = Secret::from_json(jb::json::json_from_string(&std::fs::read_to_string("secret.json").unwrap()).unwrap()).unwrap();
 
     let api_url = format!("https://api.telegram.org:443/bot{}/", secret.bot_token);
-    let (tx, rx) = std::sync::mpsc::channel::<Update>();
-    let stop_token = StopToken::default();
-
-    let join_handle = {
-        let stop_token = stop_token.clone();
-        let config = config.clone();
-
-        std::thread::spawn(move || {
-            feed(config, tx, api_url, stop_token).expect("Error in feed: ");
-            println!("!! - Exiting Thread - !!");
-        })
-    };
-
-    // join_handle.join();
-
-    while let Ok(update) = rx.recv() {
-        println!("update_id: {}", update.update_id);
-        println!("{:?}", update);
-
-        if let UpdateType::Message(message) = update.update_type {
-            if let MessageType::Text { body } = message.payload {
-                if body == "/stop" {
-                    stop_token.request_stop();
-                }
-            }
-        }
-    }
+    let telegram = TelegramApi::new(config.clone(), secret.bot_token).unwrap();
+    telegram.spin().unwrap();
 }

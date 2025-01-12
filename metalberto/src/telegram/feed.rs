@@ -29,13 +29,13 @@ fn communicate(state: &mut FeedState,
                uri: &Uri)
                -> TelegramResult<()> {
     state.http_response_parser.reset();
-    let payload = format!("{{\"offset\": {}, \"timeout\": {}", state.update_id, 40);
+    let payload = format!("{{\"offset\": {}, \"timeout\": {}}}", state.update_id, 40);
 
     state.http_request.set_field("Connection", "keep-alive");
     state.http_request.set_field("Accept", "application/json");
     let content = HttpContent::with_content("application/json", payload.into_bytes());
-
     stream.write_all(&state.http_request.generate(HttpMethod::Post, uri, Some(&content)))?;
+
     let mut buffer: [u8; 1024] = [0; 1024];
 
     while !state.stop_token.stop_requested() {
@@ -53,8 +53,7 @@ fn communicate(state: &mut FeedState,
             };
 
             let document = str::from_utf8(response.content.as_slice()).expect("[feed] Utf8!");
-            let parsed = json_from_string(document)?;
-            let response = Response::from_json(parsed)?;
+            let response = Response::<Vec<Update>>::from_json(json_from_string(document)?)?;
 
             if !response.ok {
                 return Err(TelegramError::TelegramResponse(response.description.unwrap_or("No reason given".into())));
@@ -92,9 +91,9 @@ pub fn feed(tls_config: Arc<ClientConfig>,
 
     while !state.stop_token.stop_requested() {
         println!("[feed] Establishing connection...");
-        let mut server_name = "api.telegram.org".try_into().unwrap();
+        let mut server_name = "api.telegram.org".try_into().map_err(|err| TelegramError::Dns(format!("{:?}", err)))?;
         let mut tls_client = ClientConnection::new(state.tls_config.clone(), server_name)?;
-        let mut tcp_connection = TcpStream::connect("149.154.167.220:443")?;
+        let mut tcp_connection = TcpStream::connect("api.telegram.org:443")?;
         tcp_connection.set_read_timeout(Some(Duration::from_secs(45)))?;
 
         let mut stream = Stream::new(&mut tls_client, &mut tcp_connection);
@@ -115,7 +114,7 @@ pub fn feed(tls_config: Arc<ClientConfig>,
                         _ => return Err(TelegramError::Io(error)),
                     },
                     TelegramError::HttpResponseCode(http_response_status_code) => match http_response_status_code {
-                        HttpResponseStatusCode::Ok => continue,
+                        HttpResponseStatusCode::Ok => {},
                         HttpResponseStatusCode::Conflict |
                         HttpResponseStatusCode::TooManyRequests |
                         HttpResponseStatusCode::InternalServerError |

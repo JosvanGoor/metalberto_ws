@@ -1,3 +1,5 @@
+use std::sync::OnceLock;
+
 use regex::Regex;
 
 /*
@@ -9,7 +11,7 @@ use regex::Regex;
             ((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)   // host
             (?::(\d*))?                             // port
         )?
-        (/?[\w\d\+\._~!$&'()*+,;=]*)?           // path
+        (/?[\w\d\+\.\-/_:~!$&'()*+,;=]*)?       // path
         (?:\?([\w\d\+\._~!$&'()*+,;=]+))?       // query
         (?:#([\w\d\+\._~!$&'()*+,;=]*))?        // fragment
     $                                           // end of string anchor
@@ -22,7 +24,7 @@ use regex::Regex;
     query: group 6
     fragment: group 7
 
-    ^(?:([\w\d\+\-\.]+):)?(?://(?:([\w\d\+\._~!$&'()*+,;=:]*)@)?((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)(?::(\d*))?)?(/?[\w\d\+\._~!$&'()*+,;=]*)?(?:\?([\w\d\+\._~!$&'()*+,;=]+))?(?:#([\w\d\+\._~!$&'()*+,;=]*))?$
+    ^(?:([\w\d\+\-\.]+):)?(?://(?:([\w\d\+\._~!$&'()*+,;=:]*)@)?((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)(?::(\d*))?)?(/?[\w\d\+\.\-/_:~!$&'()*+,;=]*)?(?:\?([\w\d\+\._~!$&'()*+,;=]+))?(?:#([\w\d\+\._~!$&'()*+,;=]*))?$
 
     unreserved: ALPHA / DIGIT / - / . / _ / ~ --> [\w\d\+\._~]
     gen-delimiters: ":" / "/" / "?" / "#" / "[" / "]" / "@" --> [:/\?\#\[\]@]
@@ -30,13 +32,14 @@ use regex::Regex;
 
 */
 
-///             userinfo                 port
-///       |---------------|             |---|
+///             userinfo       host      port
+///       |---------------| |---------| |---|
 /// abc://username:password@example.com:12345/path/data?key=value&key2=value2#frag
 /// |-|   |---------------------------------||--------| |-------------------| |-----|
 ///  |                  |                       |               |              |
 /// scheme          authority                 path            query         fragment
 static URI_REGEX: &str = r"^(?:([\w\d\+\-\.]+):)?(?://(?:([\w\d\+\._~!$&'()*+,;=:]*)@)?((?:[\w\d\+\._\-~!$&'()*+,;=]|:{2})*)(?::(\d*))?)?(/?[\w\d\+\.\-/_:~!$&'()*+,;=]*)?(?:\?([\w\d\+\._~!$&'()*+,;=]+))?(?:#([\w\d\+\._~!$&'()*+,;=]*))?$";
+static COMPILED_REGEX: OnceLock<Regex> = OnceLock::new();
 
 #[derive(Clone, Default, Debug)]
 pub struct Uri {
@@ -63,7 +66,7 @@ impl Uri {
 
     pub fn parse<T: AsRef<str>>(uri_str: T) -> Result<Self, UriParseError> {
         let mut uri = Uri::default();
-        let regex = Regex::new(URI_REGEX).expect("Syntax error in uri parsing regex");
+        let regex = COMPILED_REGEX.get_or_init(|| Regex::new(URI_REGEX).expect("Syntax error in uri parsing regex"));
 
         let Some(captures) = regex.captures(uri_str.as_ref()) else {
             return Err(UriParseError::NotAnUri);
@@ -179,16 +182,16 @@ impl Uri {
         self.fragment = fragment.to_string();
     }
 
-    // debugging
-    pub fn debug_print(&self) {
-        println!("Scheme: {}", self.scheme);
-        println!("Userinfo: {}", self.userinfo);
-        println!("Host: {}", self.host);
-        println!("Port: {} as u16", self.port);
-        println!("Path: {}", self.path);
-        println!("Query: {}", self.query);
-        println!("Fragment: {}", self.fragment);
-    }
+    // // debugging
+    // pub fn debug_print(&self) {
+    //     println!("Scheme: {}", self.scheme);
+    //     println!("Userinfo: {}", self.userinfo);
+    //     println!("Host: {}", self.host);
+    //     println!("Port: {} as u16", self.port);
+    //     println!("Path: {}", self.path);
+    //     println!("Query: {}", self.query);
+    //     println!("Fragment: {}", self.fragment);
+    // }
 }
 
 impl TryFrom<&str> for Uri {

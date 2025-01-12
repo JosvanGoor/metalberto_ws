@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::error::{JsonErrorType, JsonMappingError};
+use super::error::JsonMappingError;
 
 #[derive(Debug, Clone)]
 pub enum Value {

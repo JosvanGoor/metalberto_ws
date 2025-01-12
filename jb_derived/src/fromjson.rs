@@ -50,9 +50,12 @@ fn emit_assignment(field: &Field) -> proc_macro2::TokenStream {
 }
 
 pub fn from_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
+    
     let input: DeriveInput = syn::parse(input)?;
-
+    
     let struct_ident = input.ident.clone();
+    let (impl_generics, type_generics, where_clause) = input.generics.split_for_impl();
+
     let Data::Struct(struct_info) = input.data else {
         return Err(JbDeriveError::EnumNotSupported);
     };
@@ -61,7 +64,7 @@ pub fn from_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
     let assignments = fields.iter().map(emit_assignment).collect::<Vec<_>>();
 
     let token_stream = quote! {
-        impl FromJson for #struct_ident {
+        impl #impl_generics FromJson for #struct_ident #type_generics #where_clause {
             fn from_json(value: jb::json::Value) -> std::result::Result<Self, jb::json::JsonMappingError> {
                 let jb::json::Value::Dict(json) = value else {
                     return Err(jb::json::JsonMappingError::TypeMismatch);

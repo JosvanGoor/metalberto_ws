@@ -10,3 +10,6 @@ pub mod json;
 pub mod net;
 pub mod random;
 pub mod utility;
+
+mod ffi;
+pub use ffi::time;

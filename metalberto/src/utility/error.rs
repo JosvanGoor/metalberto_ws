@@ -14,7 +14,9 @@ pub enum TelegramError {
     Mapping(JsonMappingError),
     HttpResponseCode(HttpResponseStatusCode),
     TelegramResponse(String), // error description
+    Utf8(std::str::Utf8Error),
     ConnectionClosed,
+    MessageTooLong,
 }
 
 pub type TelegramResult<T> = std::result::Result<T, TelegramError>;
@@ -59,5 +61,11 @@ impl From<JsonMappingError> for TelegramError {
 impl From<HttpResponseStatusCode> for TelegramError {
     fn from(value: HttpResponseStatusCode) -> Self {
         TelegramError::HttpResponseCode(value)
+    }
+}
+
+impl From<std::str::Utf8Error> for TelegramError {
+    fn from(value: std::str::Utf8Error) -> Self {
+        TelegramError::Utf8(value)
     }
 }

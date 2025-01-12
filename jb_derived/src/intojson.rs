@@ -25,6 +25,7 @@ pub fn into_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
     let input: DeriveInput = syn::parse(input)?;
 
     let struct_ident = input.ident.clone();
+    let (impl_generics, type_generics, where_clause) = input.generics.split_for_impl();
     let Data::Struct(struct_info) = input.data else {
         return Err(JbDeriveError::EnumNotSupported);
     };
@@ -33,7 +34,7 @@ pub fn into_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
     let assignments = fields.iter().map(emit_assignment).collect::<Vec<_>>();
 
     let token_stream = quote! {
-        impl IntoJson for #struct_ident {
+        impl #impl_generics IntoJson for #struct_ident #type_generics #where_clause {
             fn into_json(self) -> jb::json::Value {
                 let mut json: std::collections::HashMap<String, jb::json::Value> = std::collections::HashMap::new();
                 #(#assignments)*
