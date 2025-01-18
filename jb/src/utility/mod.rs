@@ -1,2 +1,2 @@
-mod stoptoken;
-pub use stoptoken::StopToken;
+mod stop_token;
+pub use stop_token::StopToken;

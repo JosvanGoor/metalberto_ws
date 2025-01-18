@@ -1,13 +1,13 @@
 mod error;
 
-mod i32enum;
-use i32enum::i32_enum_impl;
+mod i32_enum;
+use i32_enum::i32_enum_impl;
 
-mod intojson;
-use intojson::into_json_impl;
+mod into_json;
+use into_json::into_json_impl;
 
-mod fromjson;
-use fromjson::from_json_impl;
+mod from_json;
+use from_json::from_json_impl;
 
 use proc_macro::TokenStream;
 

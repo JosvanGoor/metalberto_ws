@@ -50,9 +50,8 @@ fn emit_assignment(field: &Field) -> proc_macro2::TokenStream {
 }
 
 pub fn from_json_impl(input: TokenStream) -> JbDeriveResult<TokenStream> {
-    
     let input: DeriveInput = syn::parse(input)?;
-    
+
     let struct_ident = input.ident.clone();
     let (impl_generics, type_generics, where_clause) = input.generics.split_for_impl();
 

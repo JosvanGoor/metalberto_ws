@@ -1,5 +1,5 @@
-mod anycase;
-pub use anycase::AnyCase;
+mod any_case;
+pub use any_case::AnyCase;
 
 mod helpers;
 pub use helpers::*;

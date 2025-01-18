@@ -3,7 +3,7 @@ use std::ffi::c_void;
 use crate::ffi::constants::EINVAL;
 use crate::ffi::functions::strftime;
 use crate::ffi::types::size_t;
-use crate::general::onreturn::OnReturn;
+use crate::general::on_return::OnReturn;
 use crate::general::result::{FfiError, FfiResult};
 use crate::general::strings::{ntbs_to_string, string_to_ntbs};
 

@@ -1,14 +1,14 @@
 mod enums;
 pub use enums::*;
 
-mod httpcontent;
-pub use httpcontent::*;
+mod http_content;
+pub use http_content::*;
 
-mod httprequest;
-pub use httprequest::*;
+mod http_request;
+pub use http_request::*;
 
-mod httpresponse;
-pub use httpresponse::*;
+mod http_response;
+pub use http_response::*;
 
-mod httpresponseparser;
-pub use httpresponseparser::*;
+mod http_response_parser;
+pub use http_response_parser::*;

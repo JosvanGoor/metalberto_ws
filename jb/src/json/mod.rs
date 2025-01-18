@@ -1,8 +1,8 @@
 mod error;
 pub use error::{JsonError, JsonErrorType, JsonResult, JsonMappingError};
 
-mod fromjson;
-pub use fromjson::FromJson;
+mod from_json;
+pub use from_json::FromJson;
 pub use jb_derived::FromJson;
 
 pub mod helpers;
@@ -10,8 +10,8 @@ pub mod helpers;
 mod value;
 pub use value::Value;
 
-mod intojson;
-pub use intojson::IntoJson;
+mod into_json;
+pub use into_json::IntoJson;
 pub use jb_derived::IntoJson;
 
 mod parser;

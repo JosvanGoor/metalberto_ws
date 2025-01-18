@@ -4,8 +4,8 @@ pub use animation::Animation;
 mod chat;
 pub use chat::Chat;
 
-mod chatmember;
-pub use chatmember::ChatMember;
+mod chat_member;
+pub use chat_member::ChatMember;
 
 mod message;
 pub use message::{Message, MessageType};
